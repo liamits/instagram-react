@@ -58,7 +58,28 @@ const followUnfollowUser = async (req, res) => {
   }
 };
 
+const searchUsers = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.json([]);
+
+    const users = await User.find({
+      $or: [
+        { username: { $regex: q, $options: 'i' } },
+        { fullName: { $regex: q, $options: 'i' } }
+      ]
+    })
+    .select('username fullName avatar')
+    .limit(10);
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Error searching users' });
+  }
+};
+
 module.exports = {
   getUserProfile,
-  followUnfollowUser
+  followUnfollowUser,
+  searchUsers
 };

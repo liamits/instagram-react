@@ -1,31 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './Grid.css';
 
-const explorePosts = [
-  { id: 1, url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800&auto=format&fit=crop' },
-  { id: 2, url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800&auto=format&fit=crop' },
-  { id: 3, url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=800&auto=format&fit=crop' },
-  { id: 4, url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=800&auto=format&fit=crop' },
-  { id: 5, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=800&auto=format&fit=crop' },
-  { id: 6, url: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=800&auto=format&fit=crop' },
-  { id: 7, url: 'https://images.unsplash.com/photo-1505144808405-02622407151e?q=80&w=800&auto=format&fit=crop' },
-  { id: 8, url: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?q=80&w=800&auto=format&fit=crop' },
-  { id: 9, url: 'https://images.unsplash.com/photo-1433086566207-c58474389958?q=80&w=800&auto=format&fit=crop' },
-];
-
 function Explore() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/posts');
+        const data = await response.json();
+        setPosts(data);
+      } catch (err) {
+        console.error('Error fetching explore posts:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  if (loading) return <div className="explore-loading">Loading explore...</div>;
+
   return (
     <div className="explore-page">
       <div className="posts-grid">
-        {explorePosts.map(post => (
-          <div key={post.id} className="grid-item">
-            <img src={post.url} alt="Explore" />
-            <div className="grid-overlay">
-              <span>❤️ 1.2k</span>
-              <span>💬 45</span>
-            </div>
+        {posts.length > 0 ? (
+          posts.map(post => (
+            <Link key={post._id} to={`/profile/${post.user.username}`} className="grid-item">
+              <img src={post.image} alt="Explore" />
+              <div className="grid-overlay">
+                <span>❤️ {post.likes?.length || 0}</span>
+                <span>💬 {post.comments?.length || 0}</span>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div className="no-posts-grid">
+            <p>No posts yet. Be the first to share!</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

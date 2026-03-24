@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getUserProfile, followUnfollowUser } = require('../controllers/userController');
+const { getUserProfile, followUnfollowUser, searchUsers } = require('../controllers/userController');
 const auth = require('../middleware/authMiddleware');
 
+router.get('/search', searchUsers);
 router.get('/profile/:username', getUserProfile);
 router.put('/follow/:id', auth, followUnfollowUser);
 

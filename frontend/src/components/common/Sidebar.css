@@ -230,6 +230,7 @@
 
 .search-input-container {
   margin-bottom: 24px;
+  position: relative;
 }
 
 .search-input-container input {
@@ -241,17 +242,65 @@
   font-size: 16px;
 }
 
+.clear-search {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .search-results {
   flex: 1;
   border-top: 1px solid var(--border-color);
-  padding-top: 20px;
+  padding-top: 12px;
+  overflow-y: auto;
 }
 
-.no-results {
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: var(--hover-color);
+}
+
+.search-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.search-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.search-fullname {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.searching-text, .no-results {
   color: var(--text-secondary);
   font-size: 14px;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 @media (max-width: 1263px) {
