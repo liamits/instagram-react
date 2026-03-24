@@ -76,7 +76,7 @@ function Sidebar() {
                     <div className="profile-avatar-mini">
                       <img src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} alt="Profile" />
                     </div>
-                    {onlineUsers.includes(user?.id || user?._id) && (
+                    {onlineUsers.includes((user?.id || user?._id)?.toString()) && (
                       <div className="sidebar-online-dot" />
                     )}
                   </div>

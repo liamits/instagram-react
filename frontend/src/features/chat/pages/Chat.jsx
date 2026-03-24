@@ -61,9 +61,19 @@ function Chat() {
   useEffect(() => {
     if (!socket) return;
     const handleNewMessage = (message) => {
-      if (selectedUser && (message.senderId === selectedUser._id || message.receiverId === selectedUser._id)) {
+      if (selectedUser && (message.senderId === selectedUser._id?.toString() || message.senderId === selectedUser._id)) {
         setMessages(prev => [...prev, message]);
       }
+      // Update conversation list to bubble up latest
+      setConversations(prev => {
+        const idx = prev.findIndex(c =>
+          c.otherParticipant?._id?.toString() === message.senderId?.toString()
+        );
+        if (idx === -1) return prev;
+        const updated = [...prev];
+        const [conv] = updated.splice(idx, 1);
+        return [conv, ...updated];
+      });
     };
     socket.on('newMessage', handleNewMessage);
     return () => socket.off('newMessage', handleNewMessage);
@@ -124,7 +134,7 @@ function Chat() {
           ) : conversations.length > 0 ? (
             conversations.map(conv => {
               const other = conv.otherParticipant;
-              const isOnline = onlineUsers.includes(other._id);
+              const isOnline = onlineUsers.includes(other._id?.toString());
               return (
                 <div 
                   key={conv._id} 
@@ -155,11 +165,11 @@ function Chat() {
               <div className="chat-user-info">
                 <div className="chat-avatar-wrapper">
                   <img src={selectedUser.avatar} alt={selectedUser.username} className="chat-avatar" />
-                  {onlineUsers.includes(selectedUser._id) && <div className="online-badge-sm" />}
+                  {onlineUsers.includes(selectedUser._id?.toString()) && <div className="online-badge-sm" />}
                 </div>
                 <div>
                   <span className="chat-username">{selectedUser.username}</span>
-                  {onlineUsers.includes(selectedUser._id) && (
+                  {onlineUsers.includes(selectedUser._id?.toString()) && (
                     <p className="chat-online-status">Active now</p>
                   )}
                 </div>
