@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 
 const uploadRoutes = require('./routes/uploadRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
   res.send('Instagram Clone API is running...');

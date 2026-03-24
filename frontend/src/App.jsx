@@ -11,6 +11,7 @@ import Layout from './components/layout/Layout';
 import Login from './features/auth/pages/Login';
 import Signup from './features/auth/pages/Signup';
 import NotificationToast from './features/notifications/components/NotificationToast';
+import Notifications from './features/notifications/pages/Notifications';
 import { useAuth } from './context/AuthContext';
 
 function Home() {
@@ -48,6 +49,7 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="explore" element={<Explore />} />
                 <Route path="messages" element={<Chat />} />
+                <Route path="notifications" element={<Notifications />} />
                 <Route path="profile/:username" element={<Profile />} />
                 <Route path="profile" element={
                   <ProtectedRoute>

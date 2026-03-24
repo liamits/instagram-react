@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, Search, Compass, Tv, MessageCircle, Heart, PlusSquare, Menu, Instagram, X, LogOut 
-} from 'lucide-react';
+import { Home, Search, Compass, Tv, MessageCircle, Heart, PlusSquare, Menu, Instagram, X, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 import { API } from '../../utils/api';
@@ -15,7 +13,7 @@ const navItems = [
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: Tv, label: 'Reels' },
   { icon: MessageCircle, label: 'Messages', path: '/messages' },
-  { icon: Heart, label: 'Notifications' },
+  { icon: Heart, label: 'Notifications', path: '/notifications' },
   { icon: PlusSquare, label: 'Create', action: 'create' },
   { icon: 'profile', label: 'Profile', path: '/profile' },
   { icon: LogOut, label: 'Logout', action: 'logout' },
@@ -24,12 +22,38 @@ const navItems = [
 function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { onlineUsers } = useSocket();
+  const { onlineUsers, socket } = useSocket();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(API.notifications.unreadCount, { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        if (res.ok) setUnreadCount(data.count);
+      } catch (err) {}
+    };
+    fetchUnread();
+  }, []);
+
+  // Real-time new notification
+  useEffect(() => {
+    if (!socket) return;
+    const handler = () => setUnreadCount(prev => prev + 1);
+    socket.on('newNotification', handler);
+    return () => socket.off('newNotification', handler);
+  }, [socket]);
+
+  useEffect(() => {
+    if (location.pathname === '/notifications') setUnreadCount(0);
+  }, [location.pathname]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
@@ -79,6 +103,11 @@ function Sidebar() {
                     {onlineUsers.includes((user?.id || user?._id)?.toString()) && (
                       <div className="sidebar-online-dot" />
                     )}
+                  </div>
+                ) : item.label === 'Notifications' ? (
+                  <div className="nav-icon-wrapper">
+                    <item.icon size={24} strokeWidth={isActive ? 2.5 : 1.5} />
+                    {unreadCount > 0 && <span className="notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
                   </div>
                 ) : (
                   <item.icon size={24} strokeWidth={isActive ? 2.5 : 1.5} />

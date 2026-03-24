@@ -1,0 +1,77 @@
+.notifications-page {
+  max-width: 600px;
+  width: 100%;
+  padding: 30px 20px;
+  margin: 0 auto;
+}
+
+.notif-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.notif-empty, .notif-loading {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 40px;
+}
+
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notif-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.notif-item:hover {
+  background: var(--hover-color);
+}
+
+.notif-item.unread {
+  background: #e8f0fe22;
+}
+
+.notif-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.notif-body {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notif-username {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notif-time {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.notif-icon {
+  flex-shrink: 0;
+}
+
+.notif-post-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border-radius: 4px;
+}

@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
+const Notification = require('../models/Notification');
 
 const getUserProfile = async (req, res) => {
   try {
@@ -51,6 +52,15 @@ const followUnfollowUser = async (req, res) => {
 
     await currentUser.save();
     await targetUser.save();
+
+    // Save follow notification
+    if (!isFollowing) {
+      await Notification.create({
+        recipient: targetUserId,
+        sender: currentUserId,
+        type: 'follow',
+      });
+    }
 
     res.json({ message: isFollowing ? 'Unfollowed successfully' : 'Followed successfully' });
   } catch (err) {

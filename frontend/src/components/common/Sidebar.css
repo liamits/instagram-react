@@ -347,3 +347,27 @@
     height: calc(100vh - 48px);
   }
 }
+
+.nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #ed4956;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}

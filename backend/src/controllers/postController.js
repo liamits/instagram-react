@@ -1,5 +1,6 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const { getReceiverSocketId } = require('../socket/socket');
 
 const createPost = async (req, res) => {
@@ -62,16 +63,19 @@ const likePost = async (req, res) => {
     } else {
       post.likes.push(req.user.id);
       
-      // Real-time Notification
+      // Save + emit notification
       if (post.user.toString() !== req.user.id) {
+        const notif = await Notification.create({
+          recipient: post.user,
+          sender: req.user.id,
+          type: 'like',
+          post: post._id,
+        });
         const io = req.app.get('io');
         const receiverSocketId = getReceiverSocketId(post.user.toString());
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit('newNotification', {
-            type: 'like',
-            fromUser: req.user.id,
-            postId: post._id
-          });
+          const populated = await notif.populate('sender', 'username avatar');
+          io.to(receiverSocketId).emit('newNotification', populated);
         }
       }
     }
@@ -92,17 +96,20 @@ const addComment = async (req, res) => {
     post.comments.push({ user: req.user.id, text });
     await post.save();
     
-    // Real-time Notification
+    // Save + emit notification
     if (post.user.toString() !== req.user.id) {
+      const notif = await Notification.create({
+        recipient: post.user,
+        sender: req.user.id,
+        type: 'comment',
+        post: post._id,
+        text: text.substring(0, 50),
+      });
       const io = req.app.get('io');
       const receiverSocketId = getReceiverSocketId(post.user.toString());
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit('newNotification', {
-          type: 'comment',
-          fromUser: req.user.id,
-          postId: post._id,
-          text: text.substring(0, 50)
-        });
+        const populated = await notif.populate('sender', 'username avatar');
+        io.to(receiverSocketId).emit('newNotification', populated);
       }
     }
 

@@ -26,6 +26,11 @@ export const API = {
     get: (id) => `${BASE_URL}/api/messages/${id}`,
     send: (id) => `${BASE_URL}/api/messages/send/${id}`,
   },
+  notifications: {
+    base: `${BASE_URL}/api/notifications`,
+    unreadCount: `${BASE_URL}/api/notifications/unread-count`,
+    readAll: `${BASE_URL}/api/notifications/read-all`,
+  },
   upload: `${BASE_URL}/api/upload`,
   socketUrl: BASE_URL,
 };
