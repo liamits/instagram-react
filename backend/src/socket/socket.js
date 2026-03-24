@@ -32,4 +32,4 @@ const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
-module.exports = { initSocket, getReceiverSocketId };
+module.exports = { initSocket, getReceiverSocketId, userSocketMap };
