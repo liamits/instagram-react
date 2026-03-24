@@ -124,3 +124,32 @@
   font-weight: 600;
   font-size: 14px;
 }
+
+.post-comments-preview {
+  padding: 8px 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comment-item {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.comment-username {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.view-all-comments {
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: left;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.view-all-comments:hover {
+  opacity: 0.8;
+}
