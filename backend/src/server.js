@@ -4,11 +4,18 @@ const app = require('./app');
 
 dotenv.config();
 
+const { initSocket } = require('./socket/socket');
+
 // Connect to Database
 connectDB();
 
+const { server, io } = initSocket(app);
+
+// Make io accessible in controllers via req.app.set
+app.set('io', io);
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
