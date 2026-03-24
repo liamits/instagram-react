@@ -15,16 +15,14 @@ function Post({ post, onDelete }) {
 
   const isOwner = user?.id === post.user?._id?.toString() || user?.id === post.user?.id;
 
-  // Close menu on outside click
   useEffect(() => {
     const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).toUpperCase();
-  };
+  const formatDate = (d) =>
+    new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).toUpperCase();
 
   const toggleLike = async () => {
     const wasLiked = isLiked;
@@ -50,8 +48,8 @@ function Post({ post, onDelete }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ text: commentText }),
       });
-      const data = await res.json();
-      if (res.ok) { setComments(data.comments); setCommentText(''); }
+      const json = await res.json();
+      if (res.ok) { setComments(json.data.comments); setCommentText(''); }
     } catch (err) { console.error(err); }
   };
 
@@ -121,7 +119,6 @@ function Post({ post, onDelete }) {
         <div className="post-caption">
           <span className="post-username">{post.user.username}</span> {post.caption}
         </div>
-
         {comments.length > 0 && (
           <div className="post-comments-preview">
             {comments.slice(-2).map((comment) => (
@@ -139,7 +136,6 @@ function Post({ post, onDelete }) {
             )}
           </div>
         )}
-
         <p className="post-time">{formatDate(post.createdAt)}</p>
       </section>
 

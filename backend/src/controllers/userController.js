@@ -1,153 +1,97 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
 const Notification = require('../models/Notification');
+const catchAsync = require('../common/utils/catchAsync');
+const ApiError = require('../common/utils/ApiError');
+const { sendResponse } = require('../common/utils/response');
 
-const getUserProfile = async (req, res) => {
-  try {
-    const { username } = req.params;
-    const user = await User.findOne({ username }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+const getUserProfile = catchAsync(async (req, res) => {
+  const user = await User.findOne({ username: req.params.username }).select('-password');
+  if (!user) throw new ApiError(404, 'User not found');
 
-    const posts = await Post.find({ user: user._id }).sort({ createdAt: -1 });
-    
-    res.json({
-      user,
-      posts,
-      postCount: posts.length,
-      followersCount: user.followers.length,
-      followingCount: user.following.length
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching profile' });
+  const posts = await Post.find({ user: user._id }).sort({ createdAt: -1 });
+  sendResponse(res, 200, {
+    user,
+    posts,
+    postCount: posts.length,
+    followersCount: user.followers.length,
+    followingCount: user.following.length,
+  });
+});
+
+const followUnfollowUser = catchAsync(async (req, res) => {
+  const targetUserId = req.params.id;
+  const currentUserId = req.user.id;
+
+  if (targetUserId === currentUserId) throw new ApiError(400, 'You cannot follow yourself');
+
+  const [targetUser, currentUser] = await Promise.all([
+    User.findById(targetUserId),
+    User.findById(currentUserId),
+  ]);
+  if (!targetUser || !currentUser) throw new ApiError(404, 'User not found');
+
+  const isFollowing = currentUser.following.includes(targetUserId);
+  if (isFollowing) {
+    currentUser.following = currentUser.following.filter(id => id.toString() !== targetUserId);
+    targetUser.followers = targetUser.followers.filter(id => id.toString() !== currentUserId);
+  } else {
+    currentUser.following.push(targetUserId);
+    targetUser.followers.push(currentUserId);
+    await Notification.create({ recipient: targetUserId, sender: currentUserId, type: 'follow' });
   }
-};
 
-const followUnfollowUser = async (req, res) => {
-  try {
-    const targetUserId = req.params.id;
-    const currentUserId = req.user.id;
+  await Promise.all([currentUser.save(), targetUser.save()]);
+  sendResponse(res, 200, null, isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
+});
 
-    if (targetUserId === currentUserId) {
-      return res.status(400).json({ message: 'You cannot follow yourself' });
-    }
+const searchUsers = catchAsync(async (req, res) => {
+  const { q } = req.query;
+  if (!q) return sendResponse(res, 200, []);
 
-    const targetUser = await User.findById(targetUserId);
-    const currentUser = await User.findById(currentUserId);
+  const users = await User.find({
+    $or: [
+      { username: { $regex: q, $options: 'i' } },
+      { fullName: { $regex: q, $options: 'i' } },
+    ],
+  }).select('username fullName avatar').limit(10);
 
-    if (!targetUser || !currentUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+  sendResponse(res, 200, users);
+});
 
-    const isFollowing = currentUser.following.includes(targetUserId);
+const updateProfile = catchAsync(async (req, res) => {
+  const { fullName, bio, avatar } = req.body;
+  const user = await User.findById(req.user.id);
+  if (!user) throw new ApiError(404, 'User not found');
 
-    if (isFollowing) {
-      // Unfollow
-      currentUser.following = currentUser.following.filter(id => id.toString() !== targetUserId);
-      targetUser.followers = targetUser.followers.filter(id => id.toString() !== currentUserId);
-    } else {
-      // Follow
-      currentUser.following.push(targetUserId);
-      targetUser.followers.push(currentUserId);
-    }
+  if (fullName !== undefined) user.fullName = fullName;
+  if (bio !== undefined) user.bio = bio;
+  if (avatar) user.avatar = avatar;
+  await user.save();
 
-    await currentUser.save();
-    await targetUser.save();
+  sendResponse(res, 200, {
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    fullName: user.fullName,
+    bio: user.bio,
+    avatar: user.avatar,
+  }, 'Profile updated successfully');
+});
 
-    // Save follow notification
-    if (!isFollowing) {
-      await Notification.create({
-        recipient: targetUserId,
-        sender: currentUserId,
-        type: 'follow',
-      });
-    }
+const getUserById = catchAsync(async (req, res) => {
+  const user = await User.findById(req.params.id).select('username avatar fullName');
+  if (!user) throw new ApiError(404, 'User not found');
+  sendResponse(res, 200, { user });
+});
 
-    res.json({ message: isFollowing ? 'Unfollowed successfully' : 'Followed successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error following/unfollowing user' });
-  }
-};
-
-const searchUsers = async (req, res) => {
-  try {
-    const { q } = req.query;
-    if (!q) return res.json([]);
-
-    const users = await User.find({
-      $or: [
-        { username: { $regex: q, $options: 'i' } },
-        { fullName: { $regex: q, $options: 'i' } }
-      ]
-    })
+const getSuggestions = catchAsync(async (req, res) => {
+  const currentUser = await User.findById(req.user.id).select('following');
+  const excludeIds = [...currentUser.following, req.user.id];
+  const users = await User.find({ _id: { $nin: excludeIds } })
     .select('username fullName avatar')
-    .limit(10);
+    .limit(5);
+  sendResponse(res, 200, users);
+});
 
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Error searching users' });
-  }
-};
-
-const updateProfile = async (req, res) => {
-  try {
-    const { fullName, bio, avatar } = req.body;
-    const userId = req.user.id;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    if (fullName) user.fullName = fullName;
-    if (bio !== undefined) user.bio = bio;
-    if (avatar) user.avatar = avatar;
-
-    await user.save();
-
-    res.json({
-      message: 'Profile updated successfully',
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        fullName: user.fullName,
-        bio: user.bio,
-        avatar: user.avatar
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating profile' });
-  }
-};
-
-const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select('username avatar fullName');
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ user });
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching user' });
-  }
-};
-
-const getSuggestions = async (req, res) => {
-  try {
-    const currentUser = await User.findById(req.user.id).select('following');
-    const excludeIds = [...currentUser.following, req.user.id];
-
-    const users = await User.find({ _id: { $nin: excludeIds } })
-      .select('username fullName avatar')
-      .limit(5);
-
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching suggestions' });
-  }
-};
-
-module.exports = {
-  getUserProfile,
-  followUnfollowUser,
-  searchUsers,
-  updateProfile,
-  getUserById,
-  getSuggestions
-};
+module.exports = { getUserProfile, followUnfollowUser, searchUsers, updateProfile, getUserById, getSuggestions };

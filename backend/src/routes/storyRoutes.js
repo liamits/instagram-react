@@ -1,9 +1,12 @@
 const express = require('express');
-const router = express.Router();
-const auth = require('../middleware/authMiddleware');
 const { createStory, getStories, viewStory, getViewers, deleteStory } = require('../controllers/storyController');
+const auth = require('../middleware/authMiddleware');
+const validate = require('../common/middlewares/validate');
+const v = require('../modules/story/story.validation');
 
-router.post('/', auth, createStory);
+const router = express.Router();
+
+router.post('/', auth, validate(v.createStory), createStory);
 router.get('/', auth, getStories);
 router.put('/:id/view', auth, viewStory);
 router.get('/:id/viewers', auth, getViewers);

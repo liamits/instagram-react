@@ -1,34 +1,24 @@
 const Notification = require('../models/Notification');
+const catchAsync = require('../common/utils/catchAsync');
+const { sendResponse } = require('../common/utils/response');
 
-const getNotifications = async (req, res) => {
-  try {
-    const notifications = await Notification.find({ recipient: req.user.id })
-      .populate('sender', 'username avatar')
-      .populate('post', 'image')
-      .sort({ createdAt: -1 })
-      .limit(30);
-    res.json(notifications);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching notifications' });
-  }
-};
+const getNotifications = catchAsync(async (req, res) => {
+  const notifications = await Notification.find({ recipient: req.user.id })
+    .populate('sender', 'username avatar')
+    .populate('post', 'image')
+    .sort({ createdAt: -1 })
+    .limit(30);
+  sendResponse(res, 200, notifications);
+});
 
-const markAllRead = async (req, res) => {
-  try {
-    await Notification.updateMany({ recipient: req.user.id, read: false }, { read: true });
-    res.json({ message: 'Marked all as read' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error marking notifications' });
-  }
-};
+const markAllRead = catchAsync(async (req, res) => {
+  await Notification.updateMany({ recipient: req.user.id, read: false }, { read: true });
+  sendResponse(res, 200, null, 'Marked all as read');
+});
 
-const getUnreadCount = async (req, res) => {
-  try {
-    const count = await Notification.countDocuments({ recipient: req.user.id, read: false });
-    res.json({ count });
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching count' });
-  }
-};
+const getUnreadCount = catchAsync(async (req, res) => {
+  const count = await Notification.countDocuments({ recipient: req.user.id, read: false });
+  sendResponse(res, 200, { count });
+});
 
 module.exports = { getNotifications, markAllRead, getUnreadCount };

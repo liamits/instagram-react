@@ -11,28 +11,19 @@ function Feed() {
     const fetchPosts = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(API.posts.feed, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setPosts(data);
-        }
+        const res = await fetch(API.posts.feed, { headers: { Authorization: `Bearer ${token}` } });
+        const json = await res.json();
+        if (res.ok) setPosts(json.data);
       } catch (err) {
         console.error('Error fetching posts:', err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPosts();
   }, []);
 
-  const handleDeletePost = (postId) => {
-    setPosts(prev => prev.filter(p => p._id !== postId));
-  };
+  const handleDeletePost = (postId) => setPosts(prev => prev.filter(p => p._id !== postId));
 
   if (loading) return <div className="feed-loading">Loading feed...</div>;
 
@@ -41,13 +32,9 @@ function Feed() {
       <StoryRow />
       <div className="posts-container">
         {posts.length > 0 ? (
-          posts.map(post => (
-            <Post key={post._id} post={post} onDelete={handleDeletePost} />
-          ))
+          posts.map(post => <Post key={post._id} post={post} onDelete={handleDeletePost} />)
         ) : (
-          <div className="no-posts">
-            <p>No posts yet. Be the first to share!</p>
-          </div>
+          <div className="no-posts"><p>No posts yet. Be the first to share!</p></div>
         )}
       </div>
     </div>

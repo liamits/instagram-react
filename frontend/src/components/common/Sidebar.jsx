@@ -36,8 +36,8 @@ function Sidebar() {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(API.notifications.unreadCount, { headers: { Authorization: `Bearer ${token}` } });
-        const data = await res.json();
-        if (res.ok) setUnreadCount(data.count);
+        const json = await res.json();
+        if (res.ok) setUnreadCount(json.data.count);
       } catch (err) {}
     };
     fetchUnread();
@@ -61,8 +61,8 @@ function Sidebar() {
         setIsSearching(true);
         try {
           const response = await fetch(API.users.search(searchQuery));
-          const data = await response.json();
-          setSearchResults(data);
+          const json = await response.json();
+          setSearchResults(json.data || []);
         } catch (err) {
           console.error('Search error:', err);
         } finally {

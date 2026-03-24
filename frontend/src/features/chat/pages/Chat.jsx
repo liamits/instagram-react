@@ -9,7 +9,7 @@ import './Chat.css';
 function Chat() {
   const [searchParams] = useSearchParams();
   const userIdFromQuery = searchParams.get('userId');
-  
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -19,71 +19,51 @@ function Chat() {
   const { user: currentUser } = useAuth();
   const messagesEndRef = useRef(null);
 
-  // Fetch selected user info if from query or when changed
   useEffect(() => {
-    if (userIdFromQuery) {
-      const fetchUser = async () => {
-        try {
-          const response = await fetch(API.users.profileById(userIdFromQuery));
-          const data = await response.json();
-          if (response.ok) setSelectedUser(data.user);
-        } catch (err) {
-          console.error('Error fetching user for chat:', err);
-        }
-      };
-      fetchUser();
-    }
+    if (!userIdFromQuery) return;
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(API.users.profileById(userIdFromQuery));
+        const json = await res.json();
+        if (res.ok) setSelectedUser(json.data.user);
+      } catch (err) { console.error(err); }
+    };
+    fetchUser();
   }, [userIdFromQuery]);
 
-  // Fetch messages when a user is selected
   useEffect(() => {
-    if (selectedUser) {
-      const fetchMessages = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(API.messages.get(selectedUser._id), {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          const data = await response.json();
-          if (response.ok) setMessages(data);
-        } catch (err) {
-          console.error('Error fetching messages:', err);
-        }
-      };
-      fetchMessages();
-    }
+    if (!selectedUser) return;
+    const fetchMessages = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(API.messages.get(selectedUser._id), { headers: { Authorization: `Bearer ${token}` } });
+        const json = await res.json();
+        if (res.ok) setMessages(json.data);
+      } catch (err) { console.error(err); }
+    };
+    fetchMessages();
   }, [selectedUser]);
 
-  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Listen for new messages (incoming only - sent messages added via HTTP response)
   useEffect(() => {
     if (!socket) return;
-
     const handleNewMessage = (message) => {
       const msgSenderId = message.senderId?.toString();
       const selectedId = selectedUser?._id?.toString();
-
-      // Add to chat if conversation is open with this sender
       if (selectedId && msgSenderId === selectedId) {
         setMessages(prev => [...prev, message]);
       }
-
-      // Bubble conversation to top
       setConversations(prev => {
-        const idx = prev.findIndex(c =>
-          c.otherParticipant?._id?.toString() === msgSenderId
-        );
+        const idx = prev.findIndex(c => c.otherParticipant?._id?.toString() === msgSenderId);
         if (idx <= 0) return prev;
         const updated = [...prev];
         const [conv] = updated.splice(idx, 1);
         return [conv, ...updated];
       });
     };
-
     socket.on('newMessage', handleNewMessage);
     return () => socket.off('newMessage', handleNewMessage);
   }, [socket, selectedUser]);
@@ -91,42 +71,27 @@ function Chat() {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedUser) return;
-
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(API.messages.send(selectedUser._id), {
+      const res = await fetch(API.messages.send(selectedUser._id), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ message: newMessage })
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ message: newMessage }),
       });
-      const data = await response.json();
-      if (response.ok) {
-        setMessages(prev => [...prev, data]);
-        setNewMessage('');
-      }
-    } catch (err) {
-      console.error('Error sending message:', err);
-    }
+      const json = await res.json();
+      if (res.ok) { setMessages(prev => [...prev, json.data]); setNewMessage(''); }
+    } catch (err) { console.error(err); }
   };
 
-  // Fetch conversations
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(API.messages.conversations, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        if (response.ok) setConversations(data);
-      } catch (err) {
-        console.error('Error fetching conversations:', err);
-      } finally {
-        setLoadingConv(false);
-      }
+        const res = await fetch(API.messages.conversations, { headers: { Authorization: `Bearer ${token}` } });
+        const json = await res.json();
+        if (res.ok) setConversations(json.data);
+      } catch (err) { console.error(err); }
+      finally { setLoadingConv(false); }
     };
     fetchConversations();
   }, []);
@@ -134,9 +99,7 @@ function Chat() {
   return (
     <div className="chat-container">
       <div className="conversations-sidebar">
-        <header className="conv-header">
-          <h3>Messages</h3>
-        </header>
+        <header className="conv-header"><h3>Messages</h3></header>
         <div className="conv-list">
           {loadingConv ? (
             <p className="loading-text">Loading...</p>
@@ -145,8 +108,8 @@ function Chat() {
               const other = conv.otherParticipant;
               const isOnline = onlineUsers.includes(other._id?.toString());
               return (
-                <div 
-                  key={conv._id} 
+                <div
+                  key={conv._id}
                   className={`conv-item ${selectedUser?._id === other._id ? 'active' : ''}`}
                   onClick={() => setSelectedUser(other)}
                 >
@@ -185,7 +148,7 @@ function Chat() {
               </div>
               <Info size={24} className="info-icon" />
             </header>
-            
+
             <div className="messages-area">
               {messages.map((msg, i) => (
                 <div key={msg._id || i} className={`message-bubble ${msg.senderId?.toString() === currentUser?.id ? 'sent' : 'received'}`}>
@@ -197,9 +160,9 @@ function Chat() {
 
             <form className="chat-input-area" onSubmit={handleSendMessage}>
               <Smile size={24} />
-              <input 
-                type="text" 
-                placeholder="Message..." 
+              <input
+                type="text"
+                placeholder="Message..."
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
               />
@@ -215,9 +178,7 @@ function Chat() {
           </>
         ) : (
           <div className="empty-chat">
-            <div className="empty-chat-icon">
-               <MessageCircle size={60} strokeWidth={1} />
-            </div>
+            <div className="empty-chat-icon"><MessageCircle size={60} strokeWidth={1} /></div>
             <h2>Your Messages</h2>
             <p>Send private photos and messages to a friend.</p>
             <button className="send-msg-btn">Send message</button>

@@ -12,9 +12,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-    }
+    if (storedUser && token) setUser(JSON.parse(storedUser));
     setLoading(false);
   }, []);
 
@@ -25,12 +23,12 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emailOrUsername, password }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setUser(data.user);
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.message);
+      const { token, user: u } = json.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(u));
+      setUser(u);
       return { success: true };
     } catch (err) {
       return { success: false, message: err.message };
@@ -44,12 +42,12 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password, fullName }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setUser(data.user);
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.message);
+      const { token, user: u } = json.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(u));
+      setUser(u);
       return { success: true };
     } catch (err) {
       return { success: false, message: err.message };

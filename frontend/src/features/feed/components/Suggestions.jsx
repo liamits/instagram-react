@@ -14,11 +14,9 @@ function Suggestions() {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(API.users.suggestions, { headers: { Authorization: `Bearer ${token}` } });
-        const data = await res.json();
-        setSuggestions(data);
-      } catch (err) {
-        console.error(err);
-      }
+        const json = await res.json();
+        if (res.ok) setSuggestions(json.data);
+      } catch (err) { console.error(err); }
     };
     fetchSuggestions();
   }, [user]);
@@ -28,9 +26,7 @@ function Suggestions() {
       const token = localStorage.getItem('token');
       await fetch(API.users.follow(userId), { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
       setFollowing(prev => ({ ...prev, [userId]: !prev[userId] }));
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   return (
@@ -47,9 +43,7 @@ function Suggestions() {
 
       {suggestions.length > 0 && (
         <>
-          <div className="suggestions-header">
-            <span>Suggested for you</span>
-          </div>
+          <div className="suggestions-header"><span>Suggested for you</span></div>
           <div className="suggestions-list">
             {suggestions.map(u => (
               <div key={u._id} className="suggestion-item">

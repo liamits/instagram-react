@@ -47,19 +47,19 @@ function CreatePostModal({ isOpen, onClose, onSuccess }) {
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) throw new Error(uploadData.message || 'Upload failed');
+      const uploadJson = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadJson.message || 'Upload failed');
 
       // 2. Create post with image URL
       const postRes = await fetch(API.posts.base, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ image: uploadData.url, caption, location }),
+        body: JSON.stringify({ image: uploadJson.data?.url, caption, location }),
       });
-      const postData = await postRes.json();
-      if (!postRes.ok) throw new Error(postData.message || 'Failed to create post');
+      const postJson = await postRes.json();
+      if (!postRes.ok) throw new Error(postJson.message || 'Failed to create post');
 
-      onSuccess(postData);
+      onSuccess(postJson.data);
       handleClose();
     } catch (err) {
       setError(err.message);

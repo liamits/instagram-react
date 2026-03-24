@@ -37,9 +37,9 @@ function EditProfileModal({ isOpen, onClose, user, onUpdate }) {
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
         });
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.message || 'Upload failed');
-        avatarUrl = uploadData.url;
+        const uploadJson = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadJson.message || 'Upload failed');
+        avatarUrl = uploadJson.data?.url;
       }
 
       const response = await fetch(API.users.update, {
@@ -48,12 +48,12 @@ function EditProfileModal({ isOpen, onClose, user, onUpdate }) {
         body: JSON.stringify({ fullName, bio, avatar: avatarUrl }),
       });
 
-      const data = await response.json();
+      const json = await response.json();
       if (response.ok) {
-        onUpdate(data.user);
+        onUpdate(json.data);
         onClose();
       } else {
-        setError(data.message);
+        setError(json.message);
       }
     } catch (err) {
       setError(err.message || 'Failed to update profile');

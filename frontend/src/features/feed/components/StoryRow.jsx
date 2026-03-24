@@ -7,23 +7,21 @@ import './StoryRow.css';
 function StoryRow() {
   const { user } = useAuth();
   const [groups, setGroups] = useState([]);
-  const [viewing, setViewing] = useState(null); // { group, index }
+  const [viewing, setViewing] = useState(null);
   const [viewers, setViewers] = useState([]);
   const [showViewers, setShowViewers] = useState(false);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef();
   const timerRef = useRef();
 
-  useEffect(() => {
-    fetchStories();
-  }, []);
+  useEffect(() => { fetchStories(); }, []);
 
   const fetchStories = async () => {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(API.stories.base, { headers: { Authorization: `Bearer ${token}` } });
-      const data = await res.json();
-      if (res.ok) setGroups(data);
+      const json = await res.json();
+      if (res.ok) setGroups(json.data);
     } catch (err) { console.error(err); }
   };
 
@@ -35,7 +33,8 @@ function StoryRow() {
       const formData = new FormData();
       formData.append('image', file);
       const uploadRes = await fetch(API.upload, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
-      const { url } = await uploadRes.json();
+      const uploadJson = await uploadRes.json();
+      const url = uploadJson.data?.url;
 
       const storyRes = await fetch(API.stories.base, {
         method: 'POST',
@@ -66,7 +65,6 @@ function StoryRow() {
       setProgress(0);
       markViewed(group.stories[next]._id);
     } else {
-      // Next group
       const gi = groups.findIndex(g => g.user._id === group.user._id);
       if (gi + 1 < groups.length) openStory(groups[gi + 1]);
       else closeStory();
@@ -76,10 +74,7 @@ function StoryRow() {
   const prevStory = () => {
     if (!viewing) return;
     const { group, index } = viewing;
-    if (index > 0) {
-      setViewing({ group, index: index - 1 });
-      setProgress(0);
-    }
+    if (index > 0) { setViewing({ group, index: index - 1 }); setProgress(0); }
   };
 
   const closeStory = () => {
@@ -89,7 +84,6 @@ function StoryRow() {
     clearInterval(timerRef.current);
   };
 
-  // Auto-progress
   useEffect(() => {
     if (!viewing) return;
     clearInterval(timerRef.current);
@@ -107,8 +101,8 @@ function StoryRow() {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(API.stories.viewers(storyId), { headers: { Authorization: `Bearer ${token}` } });
-      const data = await res.json();
-      if (res.ok) { setViewers(data); setShowViewers(true); }
+      const json = await res.json();
+      if (res.ok) { setViewers(json.data); setShowViewers(true); }
     } catch (err) { console.error(err); }
   };
 
@@ -125,7 +119,6 @@ function StoryRow() {
   return (
     <>
       <div className="story-row">
-        {/* Add story */}
         <div className="story-item" onClick={() => fileInputRef.current.click()}>
           <div className="story-avatar-container user">
             <div className="story-avatar">
@@ -152,11 +145,9 @@ function StoryRow() {
         })}
       </div>
 
-      {/* Story viewer modal */}
       {viewing && currentStory && (
         <div className="story-modal" onClick={closeStory}>
           <div className="story-modal-inner" onClick={e => e.stopPropagation()}>
-            {/* Progress bars */}
             <div className="story-progress-bars">
               {viewing.group.stories.map((_, i) => (
                 <div key={i} className="story-progress-track">
@@ -167,7 +158,6 @@ function StoryRow() {
               ))}
             </div>
 
-            {/* Header */}
             <div className="story-header">
               <img src={currentStory.user?.avatar} alt="" className="story-user-avatar" />
               <span className="story-user-name">{currentStory.user?.username}</span>
@@ -187,14 +177,10 @@ function StoryRow() {
               </div>
             </div>
 
-            {/* Image */}
             <img src={currentStory.image} alt="story" className="story-img" />
-
-            {/* Nav zones */}
             <div className="story-nav-left" onClick={prevStory} />
             <div className="story-nav-right" onClick={nextStory} />
 
-            {/* Viewers panel */}
             {showViewers && (
               <div className="story-viewers-panel">
                 <div className="viewers-header">

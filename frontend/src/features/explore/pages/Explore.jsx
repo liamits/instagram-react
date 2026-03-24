@@ -9,9 +9,9 @@ function Explore() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch(API.posts.base);
-        const data = await response.json();
-        setPosts(data);
+        const res = await fetch(API.posts.base);
+        const json = await res.json();
+        setPosts(json.data);
       } catch (err) {
         console.error('Error fetching explore posts:', err);
       } finally {

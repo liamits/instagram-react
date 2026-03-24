@@ -1,84 +1,62 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const { getReceiverSocketId } = require('../socket/socket');
+const catchAsync = require('../common/utils/catchAsync');
+const ApiError = require('../common/utils/ApiError');
+const { sendResponse } = require('../common/utils/response');
 
-const sendMessage = async (req, res) => {
-  try {
-    const { message } = req.body;
-    const { id: receiverId } = req.params;
-    const senderId = req.user.id;
+const sendMessage = catchAsync(async (req, res) => {
+  const { message } = req.body;
+  const { id: receiverId } = req.params;
+  const senderId = req.user.id;
 
-    let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, receiverId] }
+  let conversation = await Conversation.findOne({ participants: { $all: [senderId, receiverId] } });
+  if (!conversation) {
+    conversation = await Conversation.create({ participants: [senderId, receiverId] });
+  }
+
+  const newMessage = new Message({ senderId, receiverId, message });
+  conversation.messages.push(newMessage._id);
+  await Promise.all([conversation.save(), newMessage.save()]);
+
+  const socketId = getReceiverSocketId(receiverId);
+  if (socketId) {
+    const io = req.app.get('io');
+    io.to(socketId).emit('newMessage', {
+      _id: newMessage._id,
+      senderId: newMessage.senderId.toString(),
+      receiverId: newMessage.receiverId.toString(),
+      message: newMessage.message,
+      createdAt: newMessage.createdAt,
+      updatedAt: newMessage.updatedAt,
     });
-
-    if (!conversation) {
-      conversation = await Conversation.create({
-        participants: [senderId, receiverId]
-      });
-    }
-
-    const newMessage = new Message({ senderId, receiverId, message });
-
-    if (newMessage) {
-      conversation.messages.push(newMessage._id);
-    }
-
-    await Promise.all([conversation.save(), newMessage.save()]);
-
-    // Socket.io for real-time
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      const io = req.app.get('io');
-      io.to(receiverSocketId).emit('newMessage', {
-        _id: newMessage._id,
-        senderId: newMessage.senderId.toString(),
-        receiverId: newMessage.receiverId.toString(),
-        message: newMessage.message,
-        createdAt: newMessage.createdAt,
-        updatedAt: newMessage.updatedAt,
-      });
-    }
-
-    res.status(201).json(newMessage);
-  } catch (err) {
-    res.status(500).json({ message: 'Error sending message' });
   }
-};
 
-const getMessages = async (req, res) => {
-  try {
-    const { id: userToChatId } = req.params;
-    const senderId = req.user.id;
+  sendResponse(res, 201, newMessage);
+});
 
-    const conversation = await Conversation.findOne({
-      participants: { $all: [senderId, userToChatId] }
-    }).populate('messages');
+const getMessages = catchAsync(async (req, res) => {
+  const { id: userToChatId } = req.params;
+  const senderId = req.user.id;
 
-    if (!conversation) return res.status(200).json([]);
+  const conversation = await Conversation.findOne({
+    participants: { $all: [senderId, userToChatId] },
+  }).populate('messages');
 
-    res.status(200).json(conversation.messages);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching messages' });
-  }
-};
+  sendResponse(res, 200, conversation ? conversation.messages : []);
+});
 
-const getConversations = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const conversations = await Conversation.find({
-      participants: { $in: [userId] }
-    }).populate('participants', 'username avatar fullName');
+const getConversations = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const conversations = await Conversation.find({ participants: { $in: [userId] } })
+    .populate('participants', 'username avatar fullName');
 
-    const filteredConversations = conversations.map(conv => {
-      const otherParticipant = conv.participants.find(p => p._id.toString() !== userId);
-      return { ...conv._doc, otherParticipant };
-    });
+  const data = conversations.map(conv => ({
+    ...conv._doc,
+    otherParticipant: conv.participants.find(p => p._id.toString() !== userId),
+  }));
 
-    res.status(200).json(filteredConversations);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching conversations' });
-  }
-};
+  sendResponse(res, 200, data);
+});
 
 module.exports = { sendMessage, getMessages, getConversations };

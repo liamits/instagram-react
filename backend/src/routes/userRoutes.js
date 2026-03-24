@@ -1,13 +1,16 @@
 const express = require('express');
-const router = express.Router();
 const { getUserProfile, followUnfollowUser, searchUsers, updateProfile, getUserById, getSuggestions } = require('../controllers/userController');
 const auth = require('../middleware/authMiddleware');
+const validate = require('../common/middlewares/validate');
+const v = require('../modules/user/user.validation');
+
+const router = express.Router();
 
 router.get('/suggestions', auth, getSuggestions);
-router.get('/search', searchUsers);
+router.get('/search', validate(v.search), searchUsers);
 router.get('/profile/:username', getUserProfile);
 router.get('/profile/id/:id', getUserById);
 router.put('/follow/:id', auth, followUnfollowUser);
-router.put('/update', auth, updateProfile);
+router.put('/update', auth, validate(v.updateProfile), updateProfile);
 
 module.exports = router;

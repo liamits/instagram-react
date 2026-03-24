@@ -21,12 +21,12 @@ function Profile() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await fetch(API.users.profile(username));
-        const data = await response.json();
-        if (response.ok) {
-          setProfileData(data);
-          setPosts(data.posts || []);
-          setIsFollowing(data.user.followers.includes(currentUser?.id));
+        const res = await fetch(API.users.profile(username));
+        const json = await res.json();
+        if (res.ok) {
+          setProfileData(json.data);
+          setPosts(json.data.posts || []);
+          setIsFollowing(json.data.user.followers.includes(currentUser?.id));
         }
       } catch (err) {
         console.error('Error fetching profile:', err);
@@ -40,20 +40,18 @@ function Profile() {
   const handleFollow = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(API.users.follow(profileData.user._id), {
+      const res = await fetch(API.users.follow(profileData.user._id), {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.ok) {
+      if (res.ok) {
         setIsFollowing(!isFollowing);
         setProfileData(prev => ({
           ...prev,
-          followersCount: isFollowing ? prev.followersCount - 1 : prev.followersCount + 1
+          followersCount: isFollowing ? prev.followersCount - 1 : prev.followersCount + 1,
         }));
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleProfileUpdate = (updatedUser) => {
@@ -64,7 +62,10 @@ function Profile() {
     if (!window.confirm('Delete this post?')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(API.posts.delete(postId), { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(API.posts.delete(postId), {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.ok) setPosts(prev => prev.filter(p => p._id !== postId));
     } catch (err) { console.error(err); }
   };

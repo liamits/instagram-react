@@ -1,17 +1,16 @@
 const express = require('express');
-const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const { upload, uploadToCloudinary } = require('../config/cloudinary');
+const catchAsync = require('../common/utils/catchAsync');
+const ApiError = require('../common/utils/ApiError');
+const { sendResponse } = require('../common/utils/response');
 
-router.post('/', auth, upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    const result = await uploadToCloudinary(req.file.buffer);
-    res.json({ url: result.secure_url });
-  } catch (err) {
-    console.error('Cloudinary upload error:', err);
-    res.status(500).json({ message: 'Upload failed', error: err.message });
-  }
-});
+const router = express.Router();
+
+router.post('/', auth, upload.single('image'), catchAsync(async (req, res) => {
+  if (!req.file) throw new ApiError(400, 'No file uploaded');
+  const result = await uploadToCloudinary(req.file.buffer);
+  sendResponse(res, 200, { url: result.secure_url });
+}));
 
 module.exports = router;

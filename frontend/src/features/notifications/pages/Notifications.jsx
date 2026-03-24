@@ -13,8 +13,8 @@ function Notifications() {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(API.notifications.base, { headers: { Authorization: `Bearer ${token}` } });
-        const data = await res.json();
-        if (res.ok) setNotifications(data);
+        const json = await res.json();
+        if (res.ok) setNotifications(json.data);
       } catch (err) {
         console.error(err);
       } finally {
