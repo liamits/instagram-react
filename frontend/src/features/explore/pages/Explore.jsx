@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { API } from '../../../utils/api';
+import PostModal from '../../../components/common/PostModal';
 
 function Explore() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -18,9 +19,10 @@ function Explore() {
         setLoading(false);
       }
     };
-
     fetchPosts();
   }, []);
+
+  const handleDelete = (postId) => setPosts(prev => prev.filter(p => p._id !== postId));
 
   if (loading) return <div className="explore-loading">Loading explore...</div>;
 
@@ -29,13 +31,13 @@ function Explore() {
       <div className="posts-grid">
         {posts.length > 0 ? (
           posts.map(post => (
-            <Link key={post._id} to={`/profile/${post.user.username}`} className="grid-item">
+            <div key={post._id} className="grid-item" onClick={() => setSelectedPost(post)}>
               <img src={post.image} alt="Explore" />
               <div className="grid-overlay">
                 <span>❤️ {post.likes?.length || 0}</span>
                 <span>💬 {post.comments?.length || 0}</span>
               </div>
-            </Link>
+            </div>
           ))
         ) : (
           <div className="no-posts-grid">
@@ -43,6 +45,14 @@ function Explore() {
           </div>
         )}
       </div>
+
+      {selectedPost && (
+        <PostModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

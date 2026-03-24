@@ -1,0 +1,212 @@
+.post-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.post-modal-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+  padding: 4px;
+}
+
+.post-modal-inner {
+  display: flex;
+  width: min(90vw, 960px);
+  height: min(85vh, 640px);
+  background: var(--bg-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Left image */
+.post-modal-image {
+  flex: 1.2;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.post-modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Right panel */
+.post-modal-right {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border-color);
+}
+
+.post-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.post-modal-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.post-modal-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-modal-avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-modal-username {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.post-modal-location {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.post-modal-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ed4956;
+  padding: 4px;
+  display: flex;
+}
+
+/* Caption */
+.post-modal-caption {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* Comments */
+.post-modal-comments {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.post-modal-comments::-webkit-scrollbar {
+  width: 4px;
+}
+
+.post-modal-comments::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.post-modal-comment {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.post-modal-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Actions */
+.post-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 4px;
+  border-top: 1px solid var(--border-color);
+}
+
+.post-modal-actions-left {
+  display: flex;
+  gap: 4px;
+}
+
+.post-modal-likes {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 16px 8px;
+  color: var(--text-primary);
+}
+
+/* Comment form */
+.post-modal-comment-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.post-modal-comment-form input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.post-modal-comment-form input::placeholder {
+  color: var(--text-secondary);
+}
+
+.post-modal-comment-form button {
+  background: none;
+  border: none;
+  color: #0095f6;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.post-modal-comment-form button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

@@ -4,6 +4,7 @@ import { Settings, Grid, Bookmark, UserSquare, Trash2 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
 import EditProfileModal from '../components/EditProfileModal';
+import PostModal from '../../../components/common/PostModal';
 import './Profile.css';
 import '../../explore/pages/Grid.css';
 
@@ -18,6 +19,7 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -138,7 +140,7 @@ function Profile() {
 
       <div className="posts-grid">
         {(activeTab === 'posts' ? posts : activeTab === 'saved' ? savedPosts : []).map(post => (
-          <div key={post._id} className="grid-item">
+          <div key={post._id} className="grid-item" onClick={() => setSelectedPost(post)}>
             <img src={post.image} alt="Post" />
             <div className="grid-overlay">
               <span>❤️ {post.likes?.length || 0}</span>
@@ -165,6 +167,14 @@ function Profile() {
         user={user}
         onUpdate={handleProfileUpdate}
       />
+
+      {selectedPost && (
+        <PostModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          onDelete={(id) => { setPosts(prev => prev.filter(p => p._id !== id)); setSelectedPost(null); }}
+        />
+      )}
     </div>
   );
 }
