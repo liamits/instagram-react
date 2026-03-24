@@ -153,8 +153,16 @@ function Chat() {
           <>
             <header className="chat-header">
               <div className="chat-user-info">
-                <img src={selectedUser.avatar} alt={selectedUser.username} className="chat-avatar" />
-                <span className="chat-username">{selectedUser.username}</span>
+                <div className="chat-avatar-wrapper">
+                  <img src={selectedUser.avatar} alt={selectedUser.username} className="chat-avatar" />
+                  {onlineUsers.includes(selectedUser._id) && <div className="online-badge-sm" />}
+                </div>
+                <div>
+                  <span className="chat-username">{selectedUser.username}</span>
+                  {onlineUsers.includes(selectedUser._id) && (
+                    <p className="chat-online-status">Active now</p>
+                  )}
+                </div>
               </div>
               <Info size={24} className="info-icon" />
             </header>

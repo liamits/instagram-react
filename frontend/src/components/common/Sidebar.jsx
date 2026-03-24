@@ -4,6 +4,7 @@ import {
   Home, Search, Compass, Tv, MessageCircle, Heart, PlusSquare, Menu, Instagram, X, LogOut 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 import { API } from '../../utils/api';
 import CreatePostModal from '../../features/feed/components/CreatePostModal';
 import './Sidebar.css';
@@ -23,6 +24,7 @@ const navItems = [
 function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { onlineUsers } = useSocket();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,8 +72,13 @@ function Sidebar() {
             const content = (
               <>
                 {item.icon === 'profile' ? (
-                  <div className="profile-avatar-mini">
-                    <img src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} alt="Profile" />
+                  <div className="profile-avatar-mini-wrapper">
+                    <div className="profile-avatar-mini">
+                      <img src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} alt="Profile" />
+                    </div>
+                    {onlineUsers.includes(user?.id || user?._id) && (
+                      <div className="sidebar-online-dot" />
+                    )}
                   </div>
                 ) : (
                   <item.icon size={24} strokeWidth={isActive ? 2.5 : 1.5} />

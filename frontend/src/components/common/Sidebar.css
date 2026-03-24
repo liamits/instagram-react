@@ -86,6 +86,23 @@
   object-fit: cover;
 }
 
+.profile-avatar-mini-wrapper {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar-online-dot {
+  position: absolute;
+  bottom: 0px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  background-color: #4cd137;
+  border: 1.5px solid var(--bg-color);
+  border-radius: 50%;
+}
+
 .sidebar-footer {
   margin-top: auto;
 }
