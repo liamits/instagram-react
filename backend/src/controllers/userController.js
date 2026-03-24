@@ -95,14 +95,14 @@ const getSuggestions = catchAsync(async (req, res) => {
 });
 
 const getFollowers = catchAsync(async (req, res) => {
-  if (req.params.id !== req.user.id) throw new ApiError(403, 'Unauthorized');
+  if (req.params.id.toString() !== req.user.id.toString()) throw new ApiError(403, 'Unauthorized');
   const user = await User.findById(req.params.id).populate('followers', 'username avatar fullName');
   if (!user) throw new ApiError(404, 'User not found');
   sendResponse(res, 200, user.followers);
 });
 
 const getFollowing = catchAsync(async (req, res) => {
-  if (req.params.id !== req.user.id) throw new ApiError(403, 'Unauthorized');
+  if (req.params.id.toString() !== req.user.id.toString()) throw new ApiError(403, 'Unauthorized');
   const user = await User.findById(req.params.id).populate('following', 'username avatar fullName');
   if (!user) throw new ApiError(404, 'User not found');
   sendResponse(res, 200, user.following);

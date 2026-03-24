@@ -193,7 +193,7 @@ function Profile() {
 
       {followModal && (
         <FollowListModal
-          userId={user._id}
+          userId={user._id?.toString()}
           type={followModal}
           onClose={() => setFollowModal(null)}
         />
