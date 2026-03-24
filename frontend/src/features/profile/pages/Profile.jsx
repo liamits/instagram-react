@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Settings, Grid, Bookmark, UserSquare } from 'lucide-react';
+import { Settings, Grid, Bookmark, UserSquare, Trash2 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
 import EditProfileModal from '../components/EditProfileModal';
@@ -65,8 +65,18 @@ function Profile() {
   if (loading) return <div className="profile-loading">Loading profile...</div>;
   if (!profileData) return <div className="profile-error">User not found</div>;
 
-  const { user, posts, postCount, followersCount, followingCount } = profileData;
+  const { user, posts: initialPosts, postCount, followersCount, followingCount } = profileData;
+  const [posts, setPosts] = useState(initialPosts);
   const isOwnProfile = currentUser?.username === username;
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Delete this post?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API.posts.delete(postId), { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setPosts(prev => prev.filter(p => p._id !== postId));
+    } catch (err) { console.error(err); }
+  };
 
   return (
     <div className="profile-page">
@@ -134,6 +144,11 @@ function Profile() {
                 <span>❤️ {post.likes?.length || 0}</span>
                 <span>💬 {post.comments?.length || 0}</span>
               </div>
+              {isOwnProfile && (
+                <button className="delete-post-grid-btn" onClick={() => handleDeletePost(post._id)}>
+                  <Trash2 size={16} />
+                </button>
+              )}
             </div>
           ))
         ) : (

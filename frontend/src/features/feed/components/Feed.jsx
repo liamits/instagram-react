@@ -30,6 +30,10 @@ function Feed() {
     fetchPosts();
   }, []);
 
+  const handleDeletePost = (postId) => {
+    setPosts(prev => prev.filter(p => p._id !== postId));
+  };
+
   if (loading) return <div className="feed-loading">Loading feed...</div>;
 
   return (
@@ -38,7 +42,7 @@ function Feed() {
       <div className="posts-container">
         {posts.length > 0 ? (
           posts.map(post => (
-            <Post key={post._id} post={post} />
+            <Post key={post._id} post={post} onDelete={handleDeletePost} />
           ))
         ) : (
           <div className="no-posts">

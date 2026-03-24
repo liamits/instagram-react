@@ -10,6 +10,8 @@ export const API = {
     feed: `${BASE_URL}/api/posts/feed`,
     like: (id) => `${BASE_URL}/api/posts/${id}/like`,
     comment: (id) => `${BASE_URL}/api/posts/${id}/comment`,
+    delete: (id) => `${BASE_URL}/api/posts/${id}`,
+    deleteComment: (postId, commentId) => `${BASE_URL}/api/posts/${postId}/comment/${commentId}`,
   },
   users: {
     search: (q) => `${BASE_URL}/api/users/search?q=${q}`,
