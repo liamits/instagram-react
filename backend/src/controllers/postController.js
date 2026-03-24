@@ -128,7 +128,10 @@ const savePost = catchAsync(async (req, res) => {
 const getSavedPosts = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id).populate({
     path: 'savedPosts',
-    populate: { path: 'user', select: 'username avatar fullName' },
+    populate: [
+      { path: 'user', select: 'username avatar fullName' },
+      { path: 'comments.user', select: 'username avatar' },
+    ],
   });
   if (!user) throw new ApiError(404, 'User not found');
   sendResponse(res, 200, user.savedPosts.reverse());

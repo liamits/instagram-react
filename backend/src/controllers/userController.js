@@ -9,7 +9,10 @@ const getUserProfile = catchAsync(async (req, res) => {
   const user = await User.findOne({ username: req.params.username }).select('-password');
   if (!user) throw new ApiError(404, 'User not found');
 
-  const posts = await Post.find({ user: user._id }).sort({ createdAt: -1 });
+  const posts = await Post.find({ user: user._id })
+    .populate('user', 'username avatar fullName')
+    .populate('comments.user', 'username avatar')
+    .sort({ createdAt: -1 });
   sendResponse(res, 200, {
     user,
     posts,
