@@ -5,22 +5,29 @@ import { API } from '../../../utils/api';
 
 function Feed() {
   const [posts, setPosts] = useState([]);
+  const [savedIds, setSavedIds] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const token = localStorage.getItem('token');
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const fetchAll = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(API.posts.feed, { headers: { Authorization: `Bearer ${token}` } });
-        const json = await res.json();
-        if (res.ok) setPosts(json.data);
+        const [feedRes, savedRes] = await Promise.all([
+          fetch(API.posts.feed, { headers }),
+          fetch(API.posts.saved, { headers }),
+        ]);
+        const [feedJson, savedJson] = await Promise.all([feedRes.json(), savedRes.json()]);
+        if (feedRes.ok) setPosts(feedJson.data);
+        if (savedRes.ok) setSavedIds(savedJson.data.map(p => p._id));
       } catch (err) {
-        console.error('Error fetching posts:', err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchPosts();
+    fetchAll();
   }, []);
 
   const handleDeletePost = (postId) => setPosts(prev => prev.filter(p => p._id !== postId));
@@ -32,7 +39,9 @@ function Feed() {
       <StoryRow />
       <div className="posts-container">
         {posts.length > 0 ? (
-          posts.map(post => <Post key={post._id} post={post} onDelete={handleDeletePost} />)
+          posts.map(post => (
+            <Post key={post._id} post={post} onDelete={handleDeletePost} savedPostIds={savedIds} />
+          ))
         ) : (
           <div className="no-posts"><p>No posts yet. Be the first to share!</p></div>
         )}

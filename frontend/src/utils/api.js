@@ -8,7 +8,9 @@ export const API = {
   posts: {
     base: `${BASE_URL}/api/posts`,
     feed: `${BASE_URL}/api/posts/feed`,
+    saved: `${BASE_URL}/api/posts/saved`,
     like: (id) => `${BASE_URL}/api/posts/${id}/like`,
+    save: (id) => `${BASE_URL}/api/posts/${id}/save`,
     comment: (id) => `${BASE_URL}/api/posts/${id}/comment`,
     delete: (id) => `${BASE_URL}/api/posts/${id}`,
     deleteComment: (postId, commentId) => `${BASE_URL}/api/posts/${postId}/comment/${commentId}`,

@@ -77,6 +77,10 @@
   color: #ff3040;
 }
 
+.action-btn.saved {
+  color: var(--text-primary);
+}
+
 .post-likes {
   font-size: 14px;
   font-weight: 600;

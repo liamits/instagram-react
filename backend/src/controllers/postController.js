@@ -102,4 +102,29 @@ const deleteComment = catchAsync(async (req, res) => {
   sendResponse(res, 200, null, 'Comment deleted');
 });
 
-module.exports = { createPost, getPosts, getFeed, likePost, addComment, deletePost, deleteComment };
+const savePost = catchAsync(async (req, res) => {
+  const user = await User.findById(req.user.id);
+  if (!user) throw new ApiError(404, 'User not found');
+
+  const postId = req.params.id;
+  const isSaved = user.savedPosts.some(id => id.toString() === postId);
+
+  if (isSaved) {
+    user.savedPosts = user.savedPosts.filter(id => id.toString() !== postId);
+  } else {
+    user.savedPosts.push(postId);
+  }
+  await user.save();
+  sendResponse(res, 200, { saved: !isSaved });
+});
+
+const getSavedPosts = catchAsync(async (req, res) => {
+  const user = await User.findById(req.user.id).populate({
+    path: 'savedPosts',
+    populate: { path: 'user', select: 'username avatar fullName' },
+  });
+  if (!user) throw new ApiError(404, 'User not found');
+  sendResponse(res, 200, user.savedPosts.reverse());
+});
+
+module.exports = { createPost, getPosts, getFeed, likePost, addComment, deletePost, deleteComment, savePost, getSavedPosts };

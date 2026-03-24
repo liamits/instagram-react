@@ -4,12 +4,13 @@ import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
 import './Post.css';
 
-function Post({ post, onDelete }) {
+function Post({ post, onDelete, savedPostIds = [] }) {
   const { user } = useAuth();
   const [likes, setLikes] = useState(post.likes || []);
   const [comments, setComments] = useState(post.comments || []);
   const [commentText, setCommentText] = useState('');
   const [isLiked, setIsLiked] = useState(post.likes?.includes(user?.id));
+  const [isSaved, setIsSaved] = useState(savedPostIds.includes(post._id));
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef();
 
@@ -71,6 +72,17 @@ function Post({ post, onDelete }) {
     } catch (err) { console.error(err); }
   };
 
+  const toggleSave = async () => {
+    const prev = isSaved;
+    setIsSaved(!prev);
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(API.posts.save(post._id), { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    } catch (err) {
+      setIsSaved(prev);
+    }
+  };
+
   return (
     <article className="post">
       <header className="post-header">
@@ -111,8 +123,9 @@ function Post({ post, onDelete }) {
           <button className="action-btn"><MessageCircle size={24} /></button>
           <button className="action-btn"><Send size={24} /></button>
         </div>
-        <button className="action-btn"><Bookmark size={24} /></button>
-      </div>
+        <button className={`action-btn ${isSaved ? 'saved' : ''}`} onClick={toggleSave}>
+          <Bookmark size={24} fill={isSaved ? 'currentColor' : 'none'} />
+        </button>      </div>
 
       <section className="post-details">
         <p className="post-likes">{likes.length.toLocaleString()} likes</p>
