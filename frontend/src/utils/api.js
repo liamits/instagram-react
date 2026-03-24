@@ -31,6 +31,12 @@ export const API = {
     unreadCount: `${BASE_URL}/api/notifications/unread-count`,
     readAll: `${BASE_URL}/api/notifications/read-all`,
   },
+  stories: {
+    base: `${BASE_URL}/api/stories`,
+    view: (id) => `${BASE_URL}/api/stories/${id}/view`,
+    viewers: (id) => `${BASE_URL}/api/stories/${id}/viewers`,
+    delete: (id) => `${BASE_URL}/api/stories/${id}`,
+  },
   upload: `${BASE_URL}/api/upload`,
   socketUrl: BASE_URL,
 };
