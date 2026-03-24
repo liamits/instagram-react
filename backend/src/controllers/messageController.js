@@ -1,6 +1,6 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
-const { getReceiverSocketId, userSocketMap } = require('../socket/socket');
+const { getReceiverSocketId } = require('../socket/socket');
 
 const sendMessage = async (req, res) => {
   try {
@@ -18,23 +18,16 @@ const sendMessage = async (req, res) => {
       });
     }
 
-    const newMessage = new Message({
-      senderId,
-      receiverId,
-      message
-    });
+    const newMessage = new Message({ senderId, receiverId, message });
 
     if (newMessage) {
       conversation.messages.push(newMessage._id);
     }
 
-    // This will run in parallel
     await Promise.all([conversation.save(), newMessage.save()]);
 
     // Socket.io for real-time
     const receiverSocketId = getReceiverSocketId(receiverId);
-    console.log('[Socket] map:', userSocketMap);
-    console.log('[Socket] receiverId:', receiverId, '-> socketId:', receiverSocketId);
     if (receiverSocketId) {
       const io = req.app.get('io');
       io.to(receiverSocketId).emit('newMessage', {
@@ -77,13 +70,9 @@ const getConversations = async (req, res) => {
       participants: { $in: [userId] }
     }).populate('participants', 'username avatar fullName');
 
-    // Remove the current user from the participants list for each conversation
     const filteredConversations = conversations.map(conv => {
       const otherParticipant = conv.participants.find(p => p._id.toString() !== userId);
-      return {
-        ...conv._doc,
-        otherParticipant
-      };
+      return { ...conv._doc, otherParticipant };
     });
 
     res.status(200).json(filteredConversations);
