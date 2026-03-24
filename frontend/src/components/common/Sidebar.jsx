@@ -12,7 +12,7 @@ const navItems = [
   { icon: Search, label: 'Search', action: 'search' },
   { icon: Compass, label: 'Explore', path: '/explore' },
   { icon: Tv, label: 'Reels' },
-  { icon: MessageCircle, label: 'Messages' },
+  { icon: MessageCircle, label: 'Messages', path: '/messages' },
   { icon: Heart, label: 'Notifications' },
   { icon: PlusSquare, label: 'Create', action: 'create' },
   { icon: 'profile', label: 'Profile', path: '/profile' },

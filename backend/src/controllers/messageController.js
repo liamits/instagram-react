@@ -61,4 +61,26 @@ const getMessages = async (req, res) => {
   }
 };
 
-module.exports = { sendMessage, getMessages };
+const getConversations = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const conversations = await Conversation.find({
+      participants: { $in: [userId] }
+    }).populate('participants', 'username avatar fullName');
+
+    // Remove the current user from the participants list for each conversation
+    const filteredConversations = conversations.map(conv => {
+      const otherParticipant = conv.participants.find(p => p._id.toString() !== userId);
+      return {
+        ...conv._doc,
+        otherParticipant
+      };
+    });
+
+    res.status(200).json(filteredConversations);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching conversations' });
+  }
+};
+
+module.exports = { sendMessage, getMessages, getConversations };

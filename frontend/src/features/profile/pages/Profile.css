@@ -102,6 +102,28 @@
   opacity: 0.9;
 }
 
+.profile-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.msg-btn {
+  background-color: #efefef;
+  color: var(--text-primary);
+  padding: 0 16px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msg-btn:hover {
+  background-color: #dbdbdb;
+}
+
 .follow-btn.unfollow {
   background-color: #efefef;
   color: var(--text-primary);

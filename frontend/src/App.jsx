@@ -6,6 +6,7 @@ import Feed from './features/feed/components/Feed';
 import Suggestions from './features/feed/components/Suggestions';
 import Explore from './features/explore/pages/Explore';
 import Profile from './features/profile/pages/Profile';
+import Chat from './features/chat/pages/Chat';
 import Layout from './components/layout/Layout';
 import Auth from './features/auth/pages/Auth';
 import NotificationToast from './features/notifications/components/NotificationToast';
@@ -45,6 +46,7 @@ function App() {
               <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
                 <Route index element={<Feed />} />
                 <Route path="explore" element={<Explore />} />
+                <Route path="messages" element={<Chat />} />
                 <Route path="profile/:username" element={<Profile />} />
                 <Route path="profile" element={
                   <ProtectedRoute>

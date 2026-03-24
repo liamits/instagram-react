@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Settings, Grid, Bookmark, UserSquare } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import EditProfileModal from '../components/EditProfileModal';
@@ -8,6 +8,7 @@ import '../../explore/pages/Grid.css';
 
 function Profile() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -87,12 +88,20 @@ function Profile() {
                 <Settings size={20} className="settings-icon" />
               </>
             ) : (
-              <button 
-                className={`follow-btn ${isFollowing ? 'unfollow' : ''}`}
-                onClick={handleFollow}
-              >
-                {isFollowing ? 'Unfollow' : 'Follow'}
-              </button>
+              <div className="profile-actions">
+                <button 
+                  className={`follow-btn ${isFollowing ? 'unfollow' : ''}`}
+                  onClick={handleFollow}
+                >
+                  {isFollowing ? 'Unfollow' : 'Follow'}
+                </button>
+                <button 
+                  className="msg-btn"
+                  onClick={() => navigate(`/messages?userId=${user._id}`)}
+                >
+                  Message
+                </button>
+              </div>
             )}
           </div>
 
