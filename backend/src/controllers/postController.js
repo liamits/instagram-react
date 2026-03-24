@@ -25,7 +25,14 @@ const getFeed = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id);
   if (!user) throw new ApiError(404, 'User not found');
 
-  const posts = await Post.find({ user: { $in: [...user.following, user._id] } })
+  const followingIds = [...user.following, user._id];
+
+  // If following no one, return all posts (cold start)
+  const query = user.following.length > 0
+    ? { user: { $in: followingIds } }
+    : {};
+
+  const posts = await Post.find(query)
     .populate('user', 'username avatar fullName')
     .populate('comments.user', 'username avatar')
     .sort({ createdAt: -1 });
