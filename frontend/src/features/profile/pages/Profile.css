@@ -88,6 +88,40 @@
   border-top: 1px solid var(--text-primary);
 }
 
+.follow-btn {
+  background-color: var(--accent-color);
+  color: white;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.follow-btn:hover {
+  opacity: 0.9;
+}
+
+.follow-btn.unfollow {
+  background-color: #efefef;
+  color: var(--text-primary);
+}
+
+.profile-loading, .profile-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  color: var(--text-secondary);
+}
+
+.no-posts-grid {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 767px) {
   .profile-header {
     gap: 20px;

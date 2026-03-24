@@ -52,6 +52,11 @@ function App() {
             } />
             <Route path="/profile" element={
               <ProtectedRoute>
+                {user ? <Navigate to={`/profile/${user.username}`} /> : <Navigate to="/login" />}
+              </ProtectedRoute>
+            } />
+            <Route path="/profile/:username" element={
+              <ProtectedRoute>
                 <Profile />
               </ProtectedRoute>
             } />
