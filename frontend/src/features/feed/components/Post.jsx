@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
-import './Post.css';
+import { API } from '../../../utils/api';
 
 function Post({ post }) {
   const { user } = useAuth();
@@ -26,7 +26,7 @@ function Post({ post }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/posts/${post._id}/like`, {
+      const response = await fetch(API.posts.like(post._id), {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -44,7 +44,7 @@ function Post({ post }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/posts/${post._id}/comment`, {
+      const response = await fetch(API.posts.comment(post._id), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

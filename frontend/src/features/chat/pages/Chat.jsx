@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSocket } from '../../../context/SocketContext';
-import { Search, Info, Image as ImageIcon, Heart, Smile, MessageCircle } from 'lucide-react';
+import { Info, Image as ImageIcon, Heart, Smile, MessageCircle } from 'lucide-react';
+import { API } from '../../../utils/api';
 import './Chat.css';
 
 function Chat() {
@@ -11,6 +12,8 @@ function Chat() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [conversations, setConversations] = useState([]);
+  const [loadingConv, setLoadingConv] = useState(true);
   const { socket, onlineUsers } = useSocket();
   const messagesEndRef = useRef(null);
 
@@ -19,11 +22,9 @@ function Chat() {
     if (userIdFromQuery) {
       const fetchUser = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/users/profile/id/${userIdFromQuery}`);
+          const response = await fetch(API.users.profileById(userIdFromQuery));
           const data = await response.json();
-          if (response.ok) {
-            setSelectedUser(data.user);
-          }
+          if (response.ok) setSelectedUser(data.user);
         } catch (err) {
           console.error('Error fetching user for chat:', err);
         }
@@ -38,7 +39,7 @@ function Chat() {
       const fetchMessages = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:5000/api/messages/${selectedUser._id}`, {
+          const response = await fetch(API.messages.get(selectedUser._id), {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           const data = await response.json();
@@ -74,7 +75,7 @@ function Chat() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/messages/send/${selectedUser._id}`, {
+      const response = await fetch(API.messages.send(selectedUser._id), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ function Chat() {
     const fetchConversations = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/messages/conversations', {
+        const response = await fetch(API.messages.conversations, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();

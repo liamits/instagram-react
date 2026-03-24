@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Image as ImageIcon } from 'lucide-react';
-import './CreatePostModal.css';
+import { API } from '../../../utils/api';
 
 function CreatePostModal({ isOpen, onClose, onSuccess }) {
   const [imageUrl, setImageUrl] = useState('');
@@ -18,7 +18,7 @@ function CreatePostModal({ isOpen, onClose, onSuccess }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/posts', {
+      const response = await fetch(API.posts.base, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

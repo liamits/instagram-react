@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Settings, Grid, Bookmark, UserSquare } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
+import { API } from '../../../utils/api';
 import EditProfileModal from '../components/EditProfileModal';
 import './Profile.css';
 import '../../explore/pages/Grid.css';
@@ -19,7 +20,7 @@ function Profile() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/users/profile/${username}`);
+        const response = await fetch(API.users.profile(username));
         const data = await response.json();
         if (response.ok) {
           setProfileData(data);
@@ -38,7 +39,7 @@ function Profile() {
   const handleFollow = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/users/follow/${profileData.user._id}`, {
+      const response = await fetch(API.users.follow(profileData.user._id), {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });

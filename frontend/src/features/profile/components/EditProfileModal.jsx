@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { API } from '../../../utils/api';
 import './EditProfileModal.css';
 
 function EditProfileModal({ isOpen, onClose, user, onUpdate }) {
@@ -16,7 +17,7 @@ function EditProfileModal({ isOpen, onClose, user, onUpdate }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/users/update', {
+      const response = await fetch(API.users.update, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

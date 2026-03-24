@@ -8,7 +8,8 @@ import Explore from './features/explore/pages/Explore';
 import Profile from './features/profile/pages/Profile';
 import Chat from './features/chat/pages/Chat';
 import Layout from './components/layout/Layout';
-import Auth from './features/auth/pages/Auth';
+import Login from './features/auth/pages/Login';
+import Signup from './features/auth/pages/Signup';
 import NotificationToast from './features/notifications/components/NotificationToast';
 import { useAuth } from './context/AuthContext';
 
@@ -40,11 +41,11 @@ function App() {
         <main className={user ? "main-content" : "auth-content"}>
           <>
             <Routes>
-              <Route path="/login" element={!user ? <Auth /> : <Navigate to="/" />} />
-              <Route path="/signup" element={!user ? <Auth /> : <Navigate to="/" />} />
+              <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+              <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
               
               <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                <Route index element={<Feed />} />
+                <Route index element={<Home />} />
                 <Route path="explore" element={<Explore />} />
                 <Route path="messages" element={<Chat />} />
                 <Route path="profile/:username" element={<Profile />} />

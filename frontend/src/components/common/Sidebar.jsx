@@ -4,6 +4,7 @@ import {
   Home, Search, Compass, Tv, MessageCircle, Heart, PlusSquare, Menu, Instagram, X, LogOut 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { API } from '../../utils/api';
 import CreatePostModal from '../../features/feed/components/CreatePostModal';
 import './Sidebar.css';
 
@@ -33,7 +34,7 @@ function Sidebar() {
       if (searchQuery.trim()) {
         setIsSearching(true);
         try {
-          const response = await fetch(`http://localhost:5000/api/users/search?q=${searchQuery}`);
+          const response = await fetch(API.users.search(searchQuery));
           const data = await response.json();
           setSearchResults(data);
         } catch (err) {

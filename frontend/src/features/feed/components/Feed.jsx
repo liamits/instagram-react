@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StoryRow from './StoryRow';
 import Post from './Post';
-import './Feed.css';
+import { API } from '../../../utils/api';
 
 function Feed() {
   const [posts, setPosts] = useState([]);
@@ -11,7 +11,7 @@ function Feed() {
     const fetchPosts = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/posts/feed', {
+        const response = await fetch(API.posts.feed, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

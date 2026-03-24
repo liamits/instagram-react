@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './Grid.css';
+import { API } from '../../../utils/api';
 
 function Explore() {
   const [posts, setPosts] = useState([]);
@@ -9,7 +9,7 @@ function Explore() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/posts');
+        const response = await fetch(API.posts.base);
         const data = await response.json();
         setPosts(data);
       } catch (err) {
