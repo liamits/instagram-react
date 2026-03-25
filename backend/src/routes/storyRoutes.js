@@ -1,5 +1,5 @@
 const express = require('express');
-const { createStory, getStories, viewStory, getViewers, deleteStory } = require('../controllers/storyController');
+const { createStory, getStories, viewStory, getViewers, deleteStory, toggleStoryLike } = require('../controllers/storyController');
 const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
 const v = require('../modules/story/story.validation');
