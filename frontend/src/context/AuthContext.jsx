@@ -10,10 +10,30 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (storedUser && token) setUser(JSON.parse(storedUser));
-    setLoading(false);
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (token) {
+        // Always try to fetch latest user data if we have a token
+        try {
+          const res = await fetch(API.users.me, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const json = await res.json();
+          if (res.ok) {
+            localStorage.setItem('user', JSON.stringify(json.data));
+            setUser(json.data);
+          } else if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          }
+        } catch (err) {
+          if (storedUser) setUser(JSON.parse(storedUser));
+        }
+      }
+      setLoading(false);
+    };
+    initAuth();
   }, []);
 
   const login = async (emailOrUsername, password) => {
@@ -61,8 +81,13 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login';
   };
 
+  const updateUser = (updatedUser) => {
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUser, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

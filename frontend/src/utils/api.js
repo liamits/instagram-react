@@ -22,6 +22,7 @@ export const API = {
     profileById: (id) => `${BASE_URL}/api/users/profile/id/${id}`,
     follow: (id) => `${BASE_URL}/api/users/follow/${id}`,
     update: `${BASE_URL}/api/users/update`,
+    me: `${BASE_URL}/api/users/me`,
     followers: (id) => `${BASE_URL}/api/users/${id}/followers`,
     following: (id) => `${BASE_URL}/api/users/${id}/following`,
   },

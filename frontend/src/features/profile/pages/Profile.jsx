@@ -12,7 +12,7 @@ import '../../explore/pages/Grid.css';
 function Profile() {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [posts, setPosts] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
@@ -69,6 +69,7 @@ function Profile() {
 
   const handleProfileUpdate = (updatedUser) => {
     setProfileData(prev => ({ ...prev, user: updatedUser }));
+    updateUser(updatedUser);
   };
 
   const handleDeletePost = async (postId) => {

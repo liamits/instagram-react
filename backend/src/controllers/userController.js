@@ -109,4 +109,10 @@ const getFollowing = catchAsync(async (req, res) => {
   sendResponse(res, 200, user.following);
 });
 
-module.exports = { getUserProfile, followUnfollowUser, searchUsers, updateProfile, getUserById, getSuggestions, getFollowers, getFollowing };
+const getCurrentUser = catchAsync(async (req, res) => {
+  const user = await User.findById(req.user.id).select('username fullName avatar bio followers following');
+  if (!user) throw new ApiError(404, 'User not found');
+  sendResponse(res, 200, user);
+});
+
+module.exports = { getUserProfile, followUnfollowUser, searchUsers, updateProfile, getUserById, getSuggestions, getFollowers, getFollowing, getCurrentUser };

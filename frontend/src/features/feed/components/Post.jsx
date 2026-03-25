@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, AtSign } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, AtSign, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
@@ -189,6 +189,16 @@ function Post({ post, onDelete, savedPostIds = [] }) {
       </section>
 
       <form className="post-comment-input" onSubmit={handleCommentSubmit}>
+        {commentTags.length > 0 && (
+          <div className="selected-comment-tags">
+            {commentTags.map(tag => (
+              <span key={tag._id} className="comment-tag-badge">
+                @{tag.username}
+                <button type="button" onClick={() => setCommentTags(prev => prev.filter(t => t._id !== tag._id))}><X size={12} /></button>
+              </span>
+            ))}
+          </div>
+        )}
         <input
           type="text"
           placeholder="Add a comment..."
@@ -210,7 +220,7 @@ function Post({ post, onDelete, savedPostIds = [] }) {
             <button type="button" className="done-tag-btn" onClick={() => setShowTagSelector(false)}>Done</button>
           </div>
         )}
-        <button type="submit" className="post-btn" disabled={!commentText.trim()} data-test-id="post-comment-submit-btn">Post</button>
+        <button type="submit" className="post-btn" disabled={!commentText.trim() && commentTags.length === 0} data-test-id="post-comment-submit-btn">Post</button>
       </form>
     </article>
   );

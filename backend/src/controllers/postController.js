@@ -96,11 +96,11 @@ const likePost = catchAsync(async (req, res) => {
 });
 
 const addComment = catchAsync(async (req, res) => {
-  const { text } = req.body;
+  const { text, tags } = req.body;
   const post = await Post.findById(req.params.id);
   if (!post) throw new ApiError(404, 'Post not found');
 
-  post.comments.push({ user: req.user.id, text });
+  post.comments.push({ user: req.user.id, text, tags });
   await post.save();
 
   if (post.user.toString() !== req.user.id) {
@@ -114,7 +114,6 @@ const addComment = catchAsync(async (req, res) => {
   }
 
   // Handle tagged users in comments
-  const { tags } = req.body;
   if (tags && tags.length > 0) {
     const io = req.app.get('io');
     for (const tagId of tags) {

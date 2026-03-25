@@ -291,3 +291,38 @@
   cursor: pointer;
   align-self: flex-end;
 }
+
+.selected-comment-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.comment-tag-badge {
+  background: var(--bg-secondary);
+  color: var(--accent-color);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.comment-tag-badge button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.comment-tag-badge button:hover {
+  color: #ed4956;
+}
