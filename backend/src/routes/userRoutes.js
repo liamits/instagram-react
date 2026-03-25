@@ -1,7 +1,7 @@
 const express = require('express');
 const { getUserProfile, followUnfollowUser, searchUsers, updateProfile, getUserById, getSuggestions, getFollowers, getFollowing } = require('../controllers/userController');
-const auth = require('../middleware/authMiddleware');
-const validate = require('../common/middlewares/validate');
+const auth = require('../middlewares/auth');
+const validate = require('../middlewares/validate');
 const v = require('../modules/user/user.validation');
 
 const router = express.Router();

@@ -7,7 +7,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const storyRoutes = require('./routes/storyRoutes');
-const errorHandler = require('./common/middlewares/errorHandler');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 

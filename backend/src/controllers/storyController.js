@@ -1,8 +1,8 @@
 const Story = require('../models/Story');
 const User = require('../models/User');
-const catchAsync = require('../common/utils/catchAsync');
-const ApiError = require('../common/utils/ApiError');
-const { sendResponse } = require('../common/utils/response');
+const catchAsync = require('../common/catchAsync');
+const ApiError = require('../common/ApiError');
+const { sendResponse } = require('../common/response');
 
 const createStory = catchAsync(async (req, res) => {
   const { image, text, textStyle } = req.body;

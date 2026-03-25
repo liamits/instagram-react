@@ -1,7 +1,7 @@
 const express = require('express');
 const { createStory, getStories, viewStory, getViewers, deleteStory } = require('../controllers/storyController');
-const auth = require('../middleware/authMiddleware');
-const validate = require('../common/middlewares/validate');
+const auth = require('../middlewares/auth');
+const validate = require('../middlewares/validate');
 const v = require('../modules/story/story.validation');
 
 const router = express.Router();

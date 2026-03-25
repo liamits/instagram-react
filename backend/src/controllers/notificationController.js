@@ -1,6 +1,6 @@
 const Notification = require('../models/Notification');
-const catchAsync = require('../common/utils/catchAsync');
-const { sendResponse } = require('../common/utils/response');
+const catchAsync = require('../common/catchAsync');
+const { sendResponse } = require('../common/response');
 
 const getNotifications = catchAsync(async (req, res) => {
   const notifications = await Notification.find({ recipient: req.user.id })

@@ -1,7 +1,7 @@
 const express = require('express');
 const { createPost, getPosts, getFeed, likePost, addComment, deletePost, deleteComment, savePost, getSavedPosts } = require('../controllers/postController');
-const auth = require('../middleware/authMiddleware');
-const validate = require('../common/middlewares/validate');
+const auth = require('../middlewares/auth');
+const validate = require('../middlewares/validate');
 const v = require('../modules/post/post.validation');
 
 const router = express.Router();

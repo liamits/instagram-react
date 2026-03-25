@@ -1,9 +1,9 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const { getReceiverSocketId } = require('../socket/socket');
-const catchAsync = require('../common/utils/catchAsync');
-const ApiError = require('../common/utils/ApiError');
-const { sendResponse } = require('../common/utils/response');
+const catchAsync = require('../common/catchAsync');
+const ApiError = require('../common/ApiError');
+const { sendResponse } = require('../common/response');
 
 const sendMessage = catchAsync(async (req, res) => {
   const { message } = req.body;

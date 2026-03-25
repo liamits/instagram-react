@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const catchAsync = require('../common/utils/catchAsync');
-const ApiError = require('../common/utils/ApiError');
-const { sendResponse } = require('../common/utils/response');
+const catchAsync = require('../common/catchAsync');
+const ApiError = require('../common/ApiError');
+const { sendResponse } = require('../common/response');
 
 const register = catchAsync(async (req, res) => {
   const { username, email, password, fullName } = req.body;
