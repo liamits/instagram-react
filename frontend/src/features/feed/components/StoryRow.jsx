@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Eye, Trash2, Type, Check } from 'lucide-react';
+import { Plus, X, Eye, Trash2, Type, Check, AtSign } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
+import TagSelector from '../../../components/common/TagSelector';
 import './StoryRow.css';
 
 const TEXT_COLORS = ['#ffffff', '#000000', '#ff3b30', '#ff9500', '#ffcc00', '#34c759', '#007aff', '#af52de'];
@@ -25,6 +27,8 @@ function StoryRow() {
   const [showTextInput, setShowTextInput] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [tags, setTags] = useState([]);
+  const [showTagSelector, setShowTagSelector] = useState(false);
   const editorRef = useRef();
 
   const fileInputRef = useRef();
@@ -70,6 +74,7 @@ function StoryRow() {
           image: url,
           text: storyText,
           textStyle: { color: textColor, fontSize, position: textPos },
+          tags: tags.map(t => t._id),
         }),
       });
       fetchStories();
@@ -78,6 +83,8 @@ function StoryRow() {
     setStoryFile(null);
     setStoryPreview('');
     setStoryText('');
+    setTags([]);
+    setShowTagSelector(false);
   };
 
   // Drag text label
@@ -232,6 +239,9 @@ function StoryRow() {
                 <button className="creator-btn" onClick={() => setShowTextInput(v => !v)} title="Add text">
                   <Type size={22} color="white" />
                 </button>
+                <button className="creator-btn" onClick={() => setShowTagSelector(v => !v)} title="Tag friends">
+                  <AtSign size={22} color="white" />
+                </button>
               </div>
             </div>
 
@@ -264,6 +274,16 @@ function StoryRow() {
                   </div>
                 </div>
                 <button className="done-text-btn" onClick={() => setShowTextInput(false)}>
+                  <Check size={16} /> Done
+                </button>
+              </div>
+            )}
+
+            {/* Tag selector panel */}
+            {showTagSelector && (
+              <div className="story-tag-panel" onClick={e => e.stopPropagation()}>
+                <TagSelector selectedTags={tags} onTagsChange={setTags} />
+                <button className="done-text-btn" onClick={() => setShowTagSelector(false)}>
                   <Check size={16} /> Done
                 </button>
               </div>
@@ -320,6 +340,22 @@ function StoryRow() {
             </div>
 
             <img src={currentStory.image} alt="story" className="story-img" />
+
+            {/* Render tags on viewer */}
+            {currentStory.tags?.length > 0 && (
+              <div className="story-tag-overlay">
+                {currentStory.tags.map(tag => (
+                   <Link 
+                     key={tag._id} 
+                     to={`/profile/${tag.username}`} 
+                     className="story-tag-item"
+                     onClick={e => e.stopPropagation()}
+                   >
+                     @{tag.username}
+                   </Link>
+                ))}
+              </div>
+            )}
 
             {/* Render text overlay on viewer */}
             {currentStory.text && (

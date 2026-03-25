@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, AtSign } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
+import TagSelector from '../../../components/common/TagSelector';
 import './Post.css';
 
 function Post({ post, onDelete, savedPostIds = [] }) {
@@ -13,6 +15,8 @@ function Post({ post, onDelete, savedPostIds = [] }) {
   const [isSaved, setIsSaved] = useState(savedPostIds.includes(post._id));
   const [showMenu, setShowMenu] = useState(false);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const [commentTags, setCommentTags] = useState([]);
+  const [showTagSelector, setShowTagSelector] = useState(false);
   const menuRef = useRef();
 
   const isOwner = user?.id === post.user?._id?.toString() || user?.id === post.user?.id;
@@ -54,10 +58,15 @@ function Post({ post, onDelete, savedPostIds = [] }) {
       const res = await fetch(API.posts.comment(post._id), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ text: commentText }),
+        body: JSON.stringify({ text: commentText, tags: commentTags.map(t => t._id) }),
       });
       const json = await res.json();
-      if (res.ok) { setComments(json.data.comments); setCommentText(''); }
+      if (res.ok) { 
+        setComments(json.data.comments); 
+        setCommentText(''); 
+        setCommentTags([]);
+        setShowTagSelector(false);
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -139,12 +148,31 @@ function Post({ post, onDelete, savedPostIds = [] }) {
         <p className="post-likes">{likes.length.toLocaleString()} likes</p>
         <div className="post-caption">
           <span className="post-username">{post.user.username}</span> {post.caption}
+          {post.tags?.length > 0 && (
+            <div className="post-tags">
+              {post.tags.map(tag => (
+                <Link key={tag._id} to={`/profile/${tag.username}`} className="tag-link">
+                  @{tag.username}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
         {comments.length > 0 && (
           <div className="post-comments-preview">
             {comments.slice(-2).map((comment) => (
               <div key={comment._id} className="comment-item">
-                <span className="comment-username">{comment.user?.username || 'user'}</span> {comment.text}
+                <span className="comment-username">{comment.user?.username || 'user'}</span> 
+                {comment.text}
+                {comment.tags?.length > 0 && (
+                  <span className="comment-tags">
+                    {comment.tags.map(tag => (
+                      <Link key={tag._id} to={`/profile/${tag.username}`} className="tag-link">
+                        @{tag.username}
+                      </Link>
+                    ))}
+                  </span>
+                )}
                 {(user?.id === comment.user?._id?.toString() || isOwner) && (
                   <button className="delete-comment-btn" onClick={() => handleDeleteComment(comment._id)}>
                     <Trash2 size={12} />
@@ -168,6 +196,20 @@ function Post({ post, onDelete, savedPostIds = [] }) {
           onChange={e => setCommentText(e.target.value)}
           data-test-id="post-comment-input"
         />
+        <button 
+          type="button" 
+          className="comment-tag-btn" 
+          onClick={() => setShowTagSelector(v => !v)}
+          title="Tag friends"
+        >
+          <AtSign size={18} />
+        </button>
+        {showTagSelector && (
+          <div className="comment-tag-panel">
+            <TagSelector selectedTags={commentTags} onTagsChange={setCommentTags} />
+            <button type="button" className="done-tag-btn" onClick={() => setShowTagSelector(false)}>Done</button>
+          </div>
+        )}
         <button type="submit" className="post-btn" disabled={!commentText.trim()} data-test-id="post-comment-submit-btn">Post</button>
       </form>
     </article>

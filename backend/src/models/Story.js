@@ -11,6 +11,7 @@ const storySchema = new mongoose.Schema({
   },
   viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   expiresAt: { type: Date, default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) },
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 
 // Auto-delete expired stories

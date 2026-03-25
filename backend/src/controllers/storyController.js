@@ -5,9 +5,26 @@ const ApiError = require('../common/ApiError');
 const { sendResponse } = require('../common/response');
 
 const createStory = catchAsync(async (req, res) => {
-  const { image, text, textStyle } = req.body;
-  const story = await Story.create({ user: req.user.id, image, text, textStyle });
-  await story.populate('user', 'username avatar');
+  const { image, text, textStyle, tags } = req.body;
+  const story = await Story.create({ user: req.user.id, image, text, textStyle, tags });
+  
+  // Send notifications to tagged users
+  if (tags && tags.length > 0) {
+    const io = req.app.get('io');
+    for (const tagId of tags) {
+      const notif = await Notification.create({ recipient: tagId, sender: req.user.id, type: 'tag', text: 'tagged you in a story' });
+      const socketId = getReceiverSocketId(tagId.toString());
+      if (socketId) {
+        const populated = await notif.populate('sender', 'username avatar');
+        io.to(socketId).emit('newNotification', populated);
+      }
+    }
+  }
+
+  await story.populate([
+    { path: 'user', select: 'username avatar' },
+    { path: 'tags', select: 'username avatar' }
+  ]);
   sendResponse(res, 201, story);
 });
 
@@ -17,6 +34,7 @@ const getStories = catchAsync(async (req, res) => {
 
   const stories = await Story.find({ user: { $in: ids }, expiresAt: { $gt: new Date() } })
     .populate('user', 'username avatar')
+    .populate('tags', 'username avatar')
     .sort({ createdAt: -1 });
 
   const grouped = {};

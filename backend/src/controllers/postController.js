@@ -7,16 +7,36 @@ const ApiError = require('../common/ApiError');
 const { sendResponse } = require('../common/response');
 
 const createPost = catchAsync(async (req, res) => {
-  const { image, caption, location } = req.body;
-  const post = new Post({ user: req.user.id, image, caption, location });
+  const { image, caption, location, tags } = req.body;
+  const post = new Post({ user: req.user.id, image, caption, location, tags });
   await post.save();
-  await post.populate('user', 'username avatar fullName');
+
+  // Send notifications to tagged users
+  if (tags && tags.length > 0) {
+    const io = req.app.get('io');
+    for (const tagId of tags) {
+      if (tagId.toString() !== req.user.id) {
+        const notif = await Notification.create({ recipient: tagId, sender: req.user.id, type: 'tag', post: post._id });
+        const socketId = getReceiverSocketId(tagId.toString());
+        if (socketId) {
+          const populated = await notif.populate('sender', 'username avatar');
+          io.to(socketId).emit('newNotification', populated);
+        }
+      }
+    }
+  }
+
+  await post.populate([
+    { path: 'user', select: 'username avatar fullName' },
+    { path: 'tags', select: 'username avatar' }
+  ]);
   sendResponse(res, 201, post);
 });
 
 const getPosts = catchAsync(async (req, res) => {
   const posts = await Post.find()
     .populate('user', 'username avatar fullName')
+    .populate('tags', 'username avatar')
     .sort({ createdAt: -1 });
   sendResponse(res, 200, posts);
 });
@@ -35,7 +55,9 @@ const getFeed = catchAsync(async (req, res) => {
   const [posts, total] = await Promise.all([
     Post.find(query)
       .populate('user', 'username avatar fullName')
+      .populate('tags', 'username avatar')
       .populate('comments.user', 'username avatar')
+      .populate('comments.tags', 'username avatar')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),
@@ -91,9 +113,27 @@ const addComment = catchAsync(async (req, res) => {
     }
   }
 
+  // Handle tagged users in comments
+  const { tags } = req.body;
+  if (tags && tags.length > 0) {
+    const io = req.app.get('io');
+    for (const tagId of tags) {
+      if (tagId.toString() !== req.user.id) {
+        const notif = await Notification.create({ recipient: tagId, sender: req.user.id, type: 'tag', post: post._id, text: `tagged you in a comment: ${text.substring(0, 30)}...` });
+        const socketId = getReceiverSocketId(tagId.toString());
+        if (socketId) {
+          const populated = await notif.populate('sender', 'username avatar');
+          io.to(socketId).emit('newNotification', populated);
+        }
+      }
+    }
+  }
+
   const updated = await Post.findById(req.params.id)
     .populate('user', 'username avatar fullName')
-    .populate('comments.user', 'username avatar');
+    .populate('tags', 'username avatar')
+    .populate('comments.user', 'username avatar')
+    .populate('comments.tags', 'username avatar');
   sendResponse(res, 200, updated);
 });
 
@@ -141,7 +181,9 @@ const getSavedPosts = catchAsync(async (req, res) => {
     path: 'savedPosts',
     populate: [
       { path: 'user', select: 'username avatar fullName' },
+      { path: 'tags', select: 'username avatar' },
       { path: 'comments.user', select: 'username avatar' },
+      { path: 'comments.tags', select: 'username avatar' },
     ],
   });
   if (!user) throw new ApiError(404, 'User not found');

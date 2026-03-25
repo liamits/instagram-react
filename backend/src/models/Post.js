@@ -24,12 +24,20 @@ const postSchema = new mongoose.Schema({
       ref: 'User'
     },
     text: String,
+    tags: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
     createdAt: {
       type: Date,
       default: Date.now
     }
   }],
   location: String,
+  tags: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   createdAt: {
     type: Date,
     default: Date.now

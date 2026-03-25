@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Image as ImageIcon } from 'lucide-react';
 import { API } from '../../../utils/api';
+import TagSelector from '../../../components/common/TagSelector';
 import './CreatePostModal.css';
 
 function CreatePostModal({ isOpen, onClose, onSuccess }) {
@@ -10,6 +11,7 @@ function CreatePostModal({ isOpen, onClose, onSuccess }) {
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tags, setTags] = useState([]);
   const fileInputRef = useRef();
 
   if (!isOpen) return null;
@@ -54,7 +56,12 @@ function CreatePostModal({ isOpen, onClose, onSuccess }) {
       const postRes = await fetch(API.posts.base, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ image: uploadJson.data?.url, caption, location }),
+        body: JSON.stringify({
+          image: uploadJson.data?.url,
+          caption,
+          location,
+          tags: tags.map(t => t._id)
+        }),
       });
       const postJson = await postRes.json();
       if (!postRes.ok) throw new Error(postJson.message || 'Failed to create post');
@@ -73,6 +80,7 @@ function CreatePostModal({ isOpen, onClose, onSuccess }) {
     setFile(null);
     setCaption('');
     setLocation('');
+    setTags([]);
     setError('');
     onClose();
   };
@@ -128,6 +136,7 @@ function CreatePostModal({ isOpen, onClose, onSuccess }) {
                   value={location}
                   onChange={e => setLocation(e.target.value)}
                 />
+                <TagSelector selectedTags={tags} onTagsChange={setTags} />
                 {error && <p className="error-text">{error}</p>}
               </div>
             </div>
