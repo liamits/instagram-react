@@ -58,7 +58,7 @@ const searchUsers = catchAsync(async (req, res) => {
   if (!q) return sendResponse(res, 200, []);
 
   const users = await User.find({
-    status: 'active',
+    status: { $ne: 'locked' },
     $or: [
       { username: { $regex: q, $options: 'i' } },
       { fullName: { $regex: q, $options: 'i' } },
@@ -97,7 +97,7 @@ const getUserById = catchAsync(async (req, res) => {
 const getSuggestions = catchAsync(async (req, res) => {
   const currentUser = await User.findById(req.user.id).select('following');
   const excludeIds = [...currentUser.following, req.user.id];
-  const users = await User.find({ _id: { $nin: excludeIds }, status: 'active' })
+  const users = await User.find({ _id: { $nin: excludeIds }, status: { $ne: 'locked' } })
     .select('username fullName avatar')
     .limit(5);
   sendResponse(res, 200, users);
