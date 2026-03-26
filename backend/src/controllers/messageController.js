@@ -89,4 +89,38 @@ const markSeen = catchAsync(async (req, res) => {
   sendResponse(res, 200, null, 'Seen');
 });
 
-module.exports = { sendMessage, getMessages, getConversations, markSeen };
+const reactMessage = catchAsync(async (req, res) => {
+  const { emoji } = req.body;
+  const { id: messageId } = req.params;
+  const userId = req.user.id;
+
+  const message = await Message.findById(messageId);
+  if (!message) throw new ApiError(404, 'Message not found');
+
+  const existing = message.reactions.find(r => r.user.toString() === userId);
+  if (existing) {
+    if (existing.emoji === emoji) {
+      // toggle off
+      message.reactions = message.reactions.filter(r => r.user.toString() !== userId);
+    } else {
+      existing.emoji = emoji;
+    }
+  } else {
+    message.reactions.push({ user: userId, emoji });
+  }
+  await message.save();
+
+  // Notify the other user via socket
+  const otherId = message.senderId.toString() === userId
+    ? message.receiverId.toString()
+    : message.senderId.toString();
+  const socketId = getReceiverSocketId(otherId);
+  if (socketId) {
+    const io = req.app.get('io');
+    io.to(socketId).emit('messageReaction', { messageId, reactions: message.reactions });
+  }
+
+  sendResponse(res, 200, message.reactions);
+});
+
+module.exports = { sendMessage, getMessages, getConversations, markSeen, reactMessage };

@@ -22,6 +22,10 @@ const messageSchema = new mongoose.Schema({
   },
   mediaUrl: { type: String },
   seenBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  reactions: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    emoji: { type: String, required: true },
+  }],
   postId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'

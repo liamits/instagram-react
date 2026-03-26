@@ -33,6 +33,7 @@ export const API = {
     get: (id) => `${BASE_URL}/api/messages/${id}`,
     send: (id) => `${BASE_URL}/api/messages/send/${id}`,
     seen: (id) => `${BASE_URL}/api/messages/${id}/seen`,
+    react: (id) => `${BASE_URL}/api/messages/${id}/react`,
   },
   notifications: {
     base: `${BASE_URL}/api/notifications`,

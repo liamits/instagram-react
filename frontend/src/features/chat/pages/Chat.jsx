@@ -13,6 +13,7 @@ function Chat() {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [hoveredMsg, setHoveredMsg] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [conversations, setConversations] = useState([]);
   const [loadingConv, setLoadingConv] = useState(true);
@@ -98,6 +99,31 @@ function Chat() {
     socket.on('messagesSeen', handleSeen);
     return () => socket.off('messagesSeen', handleSeen);
   }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleReaction = ({ messageId, reactions }) => {
+      setMessages(prev => prev.map(m => m._id === messageId ? { ...m, reactions } : m));
+    };
+    socket.on('messageReaction', handleReaction);
+    return () => socket.off('messageReaction', handleReaction);
+  }, [socket]);
+
+  const handleReact = async (messageId, emoji) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API.messages.react(messageId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ emoji }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setMessages(prev => prev.map(m => m._id === messageId ? { ...m, reactions: json.data } : m));
+      }
+    } catch (err) { console.error(err); }
+    setHoveredMsg(null);
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -258,10 +284,37 @@ function Chat() {
               {messages.map((msg, i) => {
                 const isSent = msg.senderId?.toString() === currentUser?.id;
                 const isLastSent = isSent && messages.slice(i + 1).every(m => m.senderId?.toString() !== currentUser?.id);
+                const QUICK_EMOJIS = ['❤️','😂','😮','😢','😡','👍'];
                 return (
                   <React.Fragment key={msg._id || i}>
-                    <div className={`message-bubble ${isSent ? 'sent' : 'received'} ${msg.type === 'post' ? 'post-msg' : ''} ${['image','gif','video'].includes(msg.type) ? 'media-msg' : ''}`}>
-                      {renderMessageContent(msg)}
+                    <div
+                      className={`message-bubble-wrapper ${isSent ? 'sent' : 'received'}`}
+                      onMouseEnter={() => setHoveredMsg(msg._id)}
+                      onMouseLeave={() => setHoveredMsg(null)}
+                    >
+                      <div className={`message-bubble ${isSent ? 'sent' : 'received'} ${msg.type === 'post' ? 'post-msg' : ''} ${['image','gif','video'].includes(msg.type) ? 'media-msg' : ''}`}>
+                        {renderMessageContent(msg)}
+                      </div>
+                      {/* Reaction picker on hover */}
+                      {hoveredMsg === msg._id && (
+                        <div className={`reaction-picker ${isSent ? 'sent' : 'received'}`}>
+                          {QUICK_EMOJIS.map(e => (
+                            <button key={e} className="reaction-emoji-btn" onClick={() => handleReact(msg._id, e)}>{e}</button>
+                          ))}
+                        </div>
+                      )}
+                      {/* Existing reactions */}
+                      {msg.reactions?.length > 0 && (
+                        <div className={`reaction-list ${isSent ? 'sent' : 'received'}`}>
+                          {Object.entries(
+                            msg.reactions.reduce((acc, r) => { acc[r.emoji] = (acc[r.emoji] || 0) + 1; return acc; }, {})
+                          ).map(([emoji, count]) => (
+                            <span key={emoji} className="reaction-badge" onClick={() => handleReact(msg._id, emoji)}>
+                              {emoji}{count > 1 && <span className="reaction-count">{count}</span>}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     {isSent && isLastSent && seenByOther && (
                       <div className="seen-receipt">
