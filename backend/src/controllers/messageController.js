@@ -69,4 +69,24 @@ const getConversations = catchAsync(async (req, res) => {
   sendResponse(res, 200, data);
 });
 
-module.exports = { sendMessage, getMessages, getConversations };
+const markSeen = catchAsync(async (req, res) => {
+  const { id: otherUserId } = req.params;
+  const userId = req.user.id;
+
+  // Mark all messages from otherUser as seen by current user
+  await Message.updateMany(
+    { senderId: otherUserId, receiverId: userId, seenBy: { $ne: userId } },
+    { $addToSet: { seenBy: userId } }
+  );
+
+  // Notify sender via socket that their messages were seen
+  const io = req.app.get('io');
+  const senderSocketId = getReceiverSocketId(otherUserId);
+  if (senderSocketId) {
+    io.to(senderSocketId).emit('messagesSeen', { by: userId, conversationWith: userId });
+  }
+
+  sendResponse(res, 200, null, 'Seen');
+});
+
+module.exports = { sendMessage, getMessages, getConversations, markSeen };

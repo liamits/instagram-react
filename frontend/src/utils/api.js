@@ -32,6 +32,7 @@ export const API = {
     conversations: `${BASE_URL}/api/messages/conversations`,
     get: (id) => `${BASE_URL}/api/messages/${id}`,
     send: (id) => `${BASE_URL}/api/messages/send/${id}`,
+    seen: (id) => `${BASE_URL}/api/messages/${id}/seen`,
   },
   notifications: {
     base: `${BASE_URL}/api/notifications`,

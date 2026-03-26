@@ -18,6 +18,7 @@ function Chat() {
   const [loadingConv, setLoadingConv] = useState(true);
   const [mediaPreview, setMediaPreview] = useState(null); // { file, url, type }
   const [uploading, setUploading] = useState(false);
+  const [seenByOther, setSeenByOther] = useState(false);
   const { socket, onlineUsers } = useSocket();
   const { user: currentUser } = useAuth();
   const messagesEndRef = useRef(null);
@@ -42,7 +43,14 @@ function Chat() {
         const token = localStorage.getItem('token');
         const res = await fetch(API.messages.get(selectedUser._id), { headers: { Authorization: `Bearer ${token}` } });
         const json = await res.json();
-        if (res.ok) setMessages(json.data);
+        if (res.ok) {
+          setMessages(json.data);
+          // Mark messages from selectedUser as seen
+          fetch(API.messages.seen(selectedUser._id), {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }
       } catch (err) { console.error(err); }
     };
     fetchMessages();
@@ -51,6 +59,18 @@ function Chat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    // Reset seen state when switching conversations
+    setSeenByOther(false);
+    // Check if last sent message was already seen
+    if (messages.length > 0) {
+      const lastSent = [...messages].reverse().find(m => m.senderId?.toString() === currentUser?.id);
+      if (lastSent?.seenBy?.includes(selectedUser?._id?.toString())) {
+        setSeenByOther(true);
+      }
+    }
+  }, [selectedUser]);
 
   useEffect(() => {
     if (!socket) return;
@@ -71,6 +91,13 @@ function Chat() {
     socket.on('newMessage', handleNewMessage);
     return () => socket.off('newMessage', handleNewMessage);
   }, [socket, selectedUser]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleSeen = () => setSeenByOther(true);
+    socket.on('messagesSeen', handleSeen);
+    return () => socket.off('messagesSeen', handleSeen);
+  }, [socket]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -122,7 +149,7 @@ function Chat() {
           body: JSON.stringify({ message: newMessage }),
         });
         const json = await res.json();
-        if (res.ok) { setMessages(prev => [...prev, json.data]); setNewMessage(''); }
+        if (res.ok) { setMessages(prev => [...prev, json.data]); setNewMessage(''); setSeenByOther(false); }
       }
     } catch (err) {
       console.error(err);
@@ -230,10 +257,19 @@ function Chat() {
             <div className="messages-area">
               {messages.map((msg, i) => {
                 const isSent = msg.senderId?.toString() === currentUser?.id;
+                const isLastSent = isSent && messages.slice(i + 1).every(m => m.senderId?.toString() !== currentUser?.id);
                 return (
-                  <div key={msg._id || i} className={`message-bubble ${isSent ? 'sent' : 'received'} ${msg.type === 'post' ? 'post-msg' : ''} ${['image','gif','video'].includes(msg.type) ? 'media-msg' : ''}`}>
-                    {renderMessageContent(msg)}
-                  </div>
+                  <React.Fragment key={msg._id || i}>
+                    <div className={`message-bubble ${isSent ? 'sent' : 'received'} ${msg.type === 'post' ? 'post-msg' : ''} ${['image','gif','video'].includes(msg.type) ? 'media-msg' : ''}`}>
+                      {renderMessageContent(msg)}
+                    </div>
+                    {isSent && isLastSent && seenByOther && (
+                      <div className="seen-receipt">
+                        <img src={selectedUser.avatar} alt="seen" className="seen-avatar" />
+                        <span>Seen</span>
+                      </div>
+                    )}
+                  </React.Fragment>
                 );
               })}
               <div ref={messagesEndRef} />

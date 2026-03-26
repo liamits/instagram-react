@@ -21,6 +21,7 @@ const messageSchema = new mongoose.Schema({
     default: 'text'
   },
   mediaUrl: { type: String },
+  seenBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   postId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'

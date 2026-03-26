@@ -366,3 +366,21 @@
   align-items: center;
   padding: 0;
 }
+
+/* Seen receipt */
+.seen-receipt {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 2px 4px 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.seen-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
