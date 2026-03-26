@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #fafafa;
+  background-color: var(--bg-secondary);
   padding: 20px;
   width: 100%;
 }
@@ -14,12 +14,13 @@
   font-size: 50px;
   margin-bottom: 30px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .auth-box {
   width: 100%;
   max-width: 350px;
-  background-color: #ffffff;
+  background-color: var(--bg-color);
   border: 1px solid var(--border-color);
   padding: 40px;
   display: flex;
@@ -29,7 +30,7 @@
 }
 
 .signup-text {
-  color: #737373;
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 17px;
   text-align: center;
@@ -38,7 +39,7 @@
 }
 
 .facebook-btn {
-  background-color: #0095f6;
+  background-color: var(--accent-color);
   color: white;
   width: 100%;
   padding: 7px;
@@ -61,19 +62,20 @@
 .auth-form input {
   width: 100%;
   padding: 9px 8px;
-  background-color: #fafafa;
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: 12px;
   outline: none;
+  color: var(--text-primary);
 }
 
 .auth-form input:focus {
-  border-color: #a8a8a8;
+  border-color: var(--text-secondary);
 }
 
 .login-btn {
-  background-color: #0095f6;
+  background-color: var(--accent-color);
   color: white;
   border-radius: 8px;
   padding: 7px;
@@ -102,28 +104,34 @@
 
 .divider span {
   padding: 0 18px;
-  color: #737373;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
 }
 
 .forgot-password {
   font-size: 12px;
-  color: #00376b;
+  color: var(--accent-color);
   margin-top: 12px;
   cursor: pointer;
 }
 
 .sub-box {
   padding: 20px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
 }
 
 .sub-box p {
   font-size: 14px;
+  color: var(--text-primary);
 }
 
 .sub-box a {
-  color: #0095f6;
+  color: var(--accent-color);
   font-weight: 600;
 }
 

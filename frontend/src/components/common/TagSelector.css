@@ -9,20 +9,20 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 8px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--bg-secondary);
 }
 
 .tag-badge {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #efefef;
+  background: var(--hover-color);
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 13px;
-  color: #0095f6;
+  color: var(--accent-color);
   font-weight: 500;
 }
 
@@ -32,7 +32,7 @@
   padding: 0;
   cursor: pointer;
   display: flex;
-  color: #8e8e8e;
+  color: var(--text-secondary);
 }
 
 .tag-input-wrapper {
@@ -49,10 +49,11 @@
   outline: none;
   font-size: 14px;
   width: 100%;
+  color: var(--text-primary);
 }
 
 .search-icon {
-  color: #8e8e8e;
+  color: var(--text-secondary);
 }
 
 .tag-suggestions {
@@ -60,11 +61,11 @@
   bottom: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #dbdbdb;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   margin-bottom: 4px;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
   z-index: 1000;
   max-height: 200px;
   overflow-y: auto;
@@ -80,7 +81,7 @@
 }
 
 .suggestion-item:hover {
-  background: #fafafa;
+  background: var(--hover-color);
 }
 
 .suggestion-avatar {
@@ -98,16 +99,17 @@
 .suggestion-username {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .suggestion-fullname {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--text-secondary);
 }
 
 .suggestion-loading, .suggestion-empty {
   padding: 20px;
   text-align: center;
-  color: #8e8e8e;
+  color: var(--text-secondary);
   font-size: 14px;
 }

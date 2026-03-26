@@ -13,6 +13,7 @@ import Signup from './features/auth/pages/Signup';
 import NotificationToast from './features/notifications/components/NotificationToast';
 import Notifications from './features/notifications/pages/Notifications';
 import { useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 function Home() {
   return (
@@ -36,33 +37,35 @@ function App() {
   const { user } = useAuth();
 
   return (
-    <Router>
-      <div className="flex">
-        {user && <Sidebar />}
-        <main className={user ? "main-content" : "auth-content"}>
-          <>
-            <Routes>
-              <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-              <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
-              
-              <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                <Route index element={<Home />} />
-                <Route path="explore" element={<Explore />} />
-                <Route path="messages" element={<Chat />} />
-                <Route path="notifications" element={<Notifications />} />
-                <Route path="profile/:username" element={<Profile />} />
-                <Route path="profile" element={
-                  <ProtectedRoute>
-                    {user ? <Navigate to={`/profile/${user.username}`} /> : <Navigate to="/login" />}
-                  </ProtectedRoute>
-                } />
-              </Route>
-            </Routes>
-            <NotificationToast />
-          </>
-        </main>
-      </div>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <div className="flex">
+          {user && <Sidebar />}
+          <main className={user ? "main-content" : "auth-content"}>
+            <>
+              <Routes>
+                <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+                <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+                
+                <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                  <Route index element={<Home />} />
+                  <Route path="explore" element={<Explore />} />
+                  <Route path="messages" element={<Chat />} />
+                  <Route path="notifications" element={<Notifications />} />
+                  <Route path="profile/:username" element={<Profile />} />
+                  <Route path="profile" element={
+                    <ProtectedRoute>
+                      {user ? <Navigate to={`/profile/${user.username}`} /> : <Navigate to="/login" />}
+                    </ProtectedRoute>
+                  } />
+                </Route>
+              </Routes>
+              <NotificationToast />
+            </>
+          </main>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 

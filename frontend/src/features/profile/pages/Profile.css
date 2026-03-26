@@ -37,7 +37,9 @@
 }
 
 .edit-profile-btn {
-  background-color: #efefef;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   border-radius: 8px;
   padding: 7px 16px;
   font-size: 14px;
@@ -45,7 +47,7 @@
 }
 
 .edit-profile-btn:hover {
-  background-color: #dbdbdb;
+  background-color: var(--hover-color);
 }
 
 .profile-stats {
@@ -121,7 +123,8 @@
 }
 
 .msg-btn {
-  background-color: #efefef;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   padding: 0 16px;
   height: 32px;
@@ -134,11 +137,12 @@
 }
 
 .msg-btn:hover {
-  background-color: #dbdbdb;
+  background-color: var(--hover-color);
 }
 
 .follow-btn.unfollow {
-  background-color: #efefef;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
 }
 

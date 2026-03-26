@@ -13,7 +13,7 @@
 .grid-item {
   position: relative;
   aspect-ratio: 1 / 1;
-  background-color: #efefef;
+  background-color: var(--bg-secondary);
   cursor: pointer;
 }
 

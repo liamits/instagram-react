@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Compass, Tv, MessageCircle, Heart, PlusSquare, Menu, Instagram, X, LogOut } from 'lucide-react';
+import { Home, Search, Compass, Tv, MessageCircle, Heart, PlusSquare, Menu, Instagram, X, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
+import { useTheme } from '../../context/ThemeContext';
 import { API } from '../../utils/api';
 import CreatePostModal from '../../features/feed/components/CreatePostModal';
 import './Sidebar.css';
@@ -23,6 +24,7 @@ function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { onlineUsers, socket } = useSocket();
+  const { theme, toggleTheme } = useTheme();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -157,6 +159,13 @@ function Sidebar() {
               </button>
             );
           })}
+          
+          <button className="nav-item" onClick={toggleTheme} data-test-id="sidebar-theme-toggle">
+            <div className="nav-icon-wrapper">
+              {theme === 'light' ? <Moon size={24} strokeWidth={1.5} /> : <Sun size={24} strokeWidth={1.5} />}
+            </div>
+            <span className="nav-label">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+          </button>
         </nav>
 
       <div className="sidebar-footer">

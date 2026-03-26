@@ -235,7 +235,7 @@
   height: 100vh;
   background-color: var(--bg-color);
   border-right: 1px solid var(--border-color);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
   z-index: 900;
   animation: slideIn 0.3s ease;
 }
@@ -289,11 +289,13 @@
 
 .search-input-container input {
   width: 100%;
-  background-color: #efefef;
+  background-color: var(--bg-secondary);
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
   font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
 }
 
 .clear-search {
