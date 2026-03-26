@@ -5,13 +5,23 @@ const createPost = {
     image: Joi.string().uri().required(),
     caption: Joi.string().allow('').optional(),
     location: Joi.string().allow('').optional(),
+    tags: Joi.array().items(Joi.string()).optional(),
+  }),
+};
+
+const updatePost = {
+  body: Joi.object({
+    caption: Joi.string().allow('').optional(),
+    location: Joi.string().allow('').optional(),
+    tags: Joi.array().items(Joi.string()).optional(),
   }),
 };
 
 const addComment = {
   body: Joi.object({
     text: Joi.string().min(1).required(),
+    tags: Joi.array().items(Joi.string()).optional(),
   }),
 };
 
-module.exports = { createPost, addComment };
+module.exports = { createPost, updatePost, addComment };

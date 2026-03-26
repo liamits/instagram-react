@@ -11,6 +11,7 @@ export const API = {
     saved: `${BASE_URL}/api/posts/saved`,
     like: (id) => `${BASE_URL}/api/posts/${id}/like`,
     save: (id) => `${BASE_URL}/api/posts/${id}/save`,
+    update: (id) => `${BASE_URL}/api/posts/${id}`,
     comment: (id) => `${BASE_URL}/api/posts/${id}/comment`,
     delete: (id) => `${BASE_URL}/api/posts/${id}`,
     deleteComment: (postId, commentId) => `${BASE_URL}/api/posts/${postId}/comment/${commentId}`,

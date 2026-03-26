@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, AtSign, X } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Trash2, AtSign, X, Edit2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { API } from '../../../utils/api';
 import TagSelector from '../../../components/common/TagSelector';
+import EditPostModal from './EditPostModal';
 import './Post.css';
 
-function Post({ post, onDelete, savedPostIds = [] }) {
+function Post({ post: initialPost, onDelete, savedPostIds = [] }) {
   const { user } = useAuth();
+  const [post, setPost] = useState(initialPost);
   const [likes, setLikes] = useState(post.likes || []);
   const [comments, setComments] = useState(post.comments || []);
   const [commentText, setCommentText] = useState('');
@@ -17,15 +19,25 @@ function Post({ post, onDelete, savedPostIds = [] }) {
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const [commentTags, setCommentTags] = useState([]);
   const [showTagSelector, setShowTagSelector] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const menuRef = useRef();
 
   const isOwner = user?.id === post.user?._id?.toString() || user?.id === post.user?.id;
 
   useEffect(() => {
-    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); };
+    const handler = (e) => { 
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false); 
+      }
+    };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const handleEditSuccess = (updatedPost) => {
+    setPost(updatedPost);
+    setShowMenu(false);
+  };
 
   const formatDate = (d) =>
     new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).toUpperCase();
@@ -134,6 +146,9 @@ function Post({ post, onDelete, savedPostIds = [] }) {
             </button>
             {showMenu && (
               <div className="post-menu">
+                <button className="post-menu-item" onClick={() => setIsEditModalOpen(true)}>
+                  <Edit2 size={16} /> Edit post
+                </button>
                 <button className="post-menu-item delete" onClick={handleDeletePost}>
                   <Trash2 size={16} /> Delete post
                 </button>
@@ -247,6 +262,13 @@ function Post({ post, onDelete, savedPostIds = [] }) {
         )}
         <button type="submit" className="post-btn" disabled={!commentText.trim() && commentTags.length === 0} data-test-id="post-comment-submit-btn">Post</button>
       </form>
+
+      <EditPostModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        post={post} 
+        onSuccess={handleEditSuccess} 
+      />
     </article>
   );
 }

@@ -9,6 +9,11 @@ const getUserProfile = catchAsync(async (req, res) => {
   const user = await User.findOne({ username: req.params.username }).select('-password');
   if (!user) throw new ApiError(404, 'User not found');
 
+  // If locked, only allow own profile or specific contexts (chat handled elsewhere)
+  if (user.status === 'locked' && user._id.toString() !== req.user.id) {
+    throw new ApiError(403, 'This account is deactivated');
+  }
+
   const posts = await Post.find({ user: user._id })
     .populate('user', 'username avatar fullName')
     .populate('comments.user', 'username avatar')
@@ -53,6 +58,7 @@ const searchUsers = catchAsync(async (req, res) => {
   if (!q) return sendResponse(res, 200, []);
 
   const users = await User.find({
+    status: 'active',
     $or: [
       { username: { $regex: q, $options: 'i' } },
       { fullName: { $regex: q, $options: 'i' } },
@@ -91,7 +97,7 @@ const getUserById = catchAsync(async (req, res) => {
 const getSuggestions = catchAsync(async (req, res) => {
   const currentUser = await User.findById(req.user.id).select('following');
   const excludeIds = [...currentUser.following, req.user.id];
-  const users = await User.find({ _id: { $nin: excludeIds } })
+  const users = await User.find({ _id: { $nin: excludeIds }, status: 'active' })
     .select('username fullName avatar')
     .limit(5);
   sendResponse(res, 200, users);
@@ -115,4 +121,47 @@ const getCurrentUser = catchAsync(async (req, res) => {
   sendResponse(res, 200, user);
 });
 
-module.exports = { getUserProfile, followUnfollowUser, searchUsers, updateProfile, getUserById, getSuggestions, getFollowers, getFollowing, getCurrentUser };
+const toggleLockAccount = catchAsync(async (req, res) => {
+  const user = await User.findById(req.user.id);
+  if (!user) throw new ApiError(404, 'User not found');
+
+  if (user.status === 'locked') {
+    // Cooldown check: 7 days
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const remainingDays = Math.ceil((user.lockUntil - Date.now()) / (1000 * 60 * 60 * 24));
+      throw new ApiError(400, `Account is locked. You can reactivate in ${remainingDays} days.`);
+    }
+    user.status = 'active';
+    user.lockUntil = null;
+    await user.save();
+    sendResponse(res, 200, user, 'Account reactivated');
+  } else {
+    user.status = 'locked';
+    user.lockUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await user.save();
+    sendResponse(res, 200, user, 'Account locked for at least 7 days');
+  }
+});
+
+const deleteAccount = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  await User.findByIdAndDelete(userId);
+  await Post.deleteMany({ user: userId });
+  // Stories will stay or be deleted? Usually deleted.
+  // We don't have a Story model imported here, but we can add it if needed.
+  sendResponse(res, 200, null, 'Account deleted');
+});
+
+module.exports = { 
+  getUserProfile, 
+  followUnfollowUser, 
+  searchUsers, 
+  updateProfile, 
+  getUserById, 
+  getSuggestions, 
+  getFollowers, 
+  getFollowing, 
+  getCurrentUser,
+  toggleLockAccount,
+  deleteAccount
+};

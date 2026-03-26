@@ -9,7 +9,8 @@ const {
   deleteComment, 
   savePost, 
   getSavedPosts, 
-  toggleCommentLike 
+  toggleCommentLike,
+  updatePost 
 } = require('../controllers/postController');
 const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
@@ -21,6 +22,7 @@ router.post('/', auth, validate(v.createPost), createPost);
 router.get('/', getPosts);
 router.get('/feed', auth, getFeed);
 router.get('/saved', auth, getSavedPosts);
+router.put('/:id', auth, validate(v.updatePost), updatePost);
 router.put('/:id/like', auth, likePost);
 router.put('/:id/save', auth, savePost);
 router.post('/:id/comment', auth, validate(v.addComment), addComment);

@@ -223,4 +223,46 @@ const toggleCommentLike = catchAsync(async (req, res) => {
   sendResponse(res, 200, comment.likes);
 });
 
-module.exports = { createPost, getPosts, getFeed, likePost, addComment, deletePost, deleteComment, savePost, getSavedPosts, toggleCommentLike };
+const updatePost = catchAsync(async (req, res) => {
+  const { caption, location, tags } = req.body;
+  const post = await Post.findById(req.params.id);
+
+  if (!post) throw new ApiError(404, 'Post not found');
+  if (post.user.toString() !== req.user.id) throw new ApiError(403, 'Unauthorized');
+
+  const oldTags = post.tags.map(id => id.toString());
+  
+  if (caption !== undefined) post.caption = caption;
+  if (location !== undefined) post.location = location;
+  if (tags !== undefined) post.tags = tags;
+
+  await post.save();
+
+  // Send notifications to NEW tagged users
+  if (tags && tags.length > 0) {
+    const newTags = tags.filter(tagId => !oldTags.includes(tagId.toString()));
+    if (newTags.length > 0) {
+      const io = req.app.get('io');
+      for (const tagId of newTags) {
+        if (tagId.toString() !== req.user.id) {
+          const notif = await Notification.create({ recipient: tagId, sender: req.user.id, type: 'tag', post: post._id });
+          const socketId = getReceiverSocketId(tagId.toString());
+          if (socketId) {
+            const populated = await notif.populate('sender', 'username avatar');
+            io.to(socketId).emit('newNotification', populated);
+          }
+        }
+      }
+    }
+  }
+
+  await post.populate([
+    { path: 'user', select: 'username avatar fullName' },
+    { path: 'tags', select: 'username avatar' },
+    { path: 'comments.user', select: 'username avatar' }
+  ]);
+  
+  sendResponse(res, 200, post, 'Post updated successfully');
+});
+
+module.exports = { createPost, getPosts, getFeed, likePost, addComment, deletePost, deleteComment, savePost, getSavedPosts, toggleCommentLike, updatePost };
