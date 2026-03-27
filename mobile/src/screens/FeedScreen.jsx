@@ -33,6 +33,8 @@ function StoryRow({ currentUser, token }) {
       .catch(() => {});
   }, [token]);
 
+  const avatarUri = currentUser?.avatar || 'https://ui-avatars.com/api/?name=U&background=555&color=fff';
+
   return (
     <ScrollView
       horizontal
@@ -43,7 +45,7 @@ function StoryRow({ currentUser, token }) {
       {/* Your story */}
       <TouchableOpacity style={styles.storyItem}>
         <View style={styles.yourStoryWrapper}>
-          <Image source={{ uri: currentUser?.avatar }} style={styles.storyAvatar} />
+          <Image source={{ uri: avatarUri }} style={styles.storyAvatar} />
           <View style={styles.addBadge}>
             <Plus size={12} color="#fff" strokeWidth={3} />
           </View>
@@ -84,7 +86,7 @@ function PostItem({ post, currentUserId, token }) {
       {/* Post header */}
       <View style={styles.postHeader}>
         <View style={styles.postUserRow}>
-          <Image source={{ uri: post.user?.avatar }} style={styles.postAvatar} />
+          <Image source={{ uri: post.user?.avatar || 'https://ui-avatars.com/api/?name=U&background=555&color=fff' }} style={styles.postAvatar} />
           <View>
             <Text style={styles.postUsername}>{post.user?.username}</Text>
             {post.location ? <Text style={styles.postLocation}>{post.location}</Text> : null}
