@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, Search, PlusSquare, Heart, User } from 'lucide-react-native';
+import { Home, Search, PlusSquare, Send, User, Tv2 } from 'lucide-react-native';
 
 import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
@@ -30,7 +30,8 @@ function MainTabs() {
           if (route.name === 'Feed') return <Home size={s} color={color} />;
           if (route.name === 'Explore') return <Search size={s} color={color} />;
           if (route.name === 'Create') return <PlusSquare size={s} color={color} />;
-          if (route.name === 'Notifications') return <Heart size={s} color={color} />;
+          if (route.name === 'Reels') return <Tv2 size={s} color={color} />;
+          if (route.name === 'Messages') return <Send size={s} color={color} />;
           if (route.name === 'Profile') return <User size={s} color={color} />;
         },
       })}
@@ -38,7 +39,8 @@ function MainTabs() {
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Explore" component={ExploreScreen} />
       <Tab.Screen name="Create" component={FeedScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} />
+      <Tab.Screen name="Reels" component={FeedScreen} />
+      <Tab.Screen name="Messages" component={MessagesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

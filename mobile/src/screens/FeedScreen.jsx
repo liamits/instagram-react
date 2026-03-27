@@ -8,18 +8,16 @@ import { Heart, MessageCircle, Send, Bookmark, Plus, MoreHorizontal, SquarePen }
 import { useAuth } from '../context/AuthContext';
 import { API } from '../api/api';
 
-function Header({ navigation }) {
+function Header() {
   return (
     <View style={styles.header}>
+      <TouchableOpacity style={styles.headerBtn}>
+        <Plus size={26} color="#fff" strokeWidth={1.5} />
+      </TouchableOpacity>
       <Text style={styles.headerLogo}>Instagram</Text>
-      <View style={styles.headerRight}>
-        <TouchableOpacity style={styles.headerBtn}>
-          <SquarePen size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Send size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.headerBtn}>
+        <Heart size={24} color="#fff" strokeWidth={1.5} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -222,16 +220,15 @@ const styles = StyleSheet.create({
   // Header
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 10, backgroundColor: '#000',
+    paddingHorizontal: 14, paddingVertical: 10, backgroundColor: '#000',
   },
-  headerLogo: { color: '#fff', fontSize: 26, fontFamily: 'serif', fontStyle: 'italic' },
-  headerRight: { flexDirection: 'row' },
-  headerBtn: { marginLeft: 16 },
+  headerLogo: { color: '#fff', fontSize: 26, fontFamily: 'serif', fontStyle: 'italic', flex: 1, textAlign: 'center' },
+  headerBtn: { width: 36 },
 
   // Story
-  storyRow: { backgroundColor: '#000', paddingVertical: 10, borderBottomWidth: 0.3, borderBottomColor: '#333' },
-  storyItem: { alignItems: 'center', marginHorizontal: 8, width: 68 },
-  storyAvatar: { width: 60, height: 60, borderRadius: 30 },
+  storyRow: { backgroundColor: '#000', paddingVertical: 12, borderBottomWidth: 0.3, borderBottomColor: '#333' },
+  storyItem: { alignItems: 'center', marginHorizontal: 8, width: 72 },
+  storyAvatar: { width: 62, height: 62, borderRadius: 31 },
   yourStoryWrapper: { position: 'relative' },
   addBadge: {
     position: 'absolute', bottom: 0, right: 0,
@@ -240,13 +237,10 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: '#000',
   },
   storyRing: {
-    padding: 2, borderRadius: 34,
-    borderWidth: 2, borderColor: 'transparent',
-    background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
-    // React Native gradient workaround - use solid color
-    borderColor: '#e1306c',
+    padding: 2.5, borderRadius: 36,
+    borderWidth: 2.5, borderColor: '#e1306c',
   },
-  storyName: { fontSize: 11, marginTop: 4, color: '#fff', textAlign: 'center' },
+  storyName: { fontSize: 11, marginTop: 5, color: '#fff', textAlign: 'center' },
 
   // Post
   post: { backgroundColor: '#000', marginBottom: 4 },
